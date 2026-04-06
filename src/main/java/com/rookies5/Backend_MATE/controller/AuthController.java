@@ -98,20 +98,32 @@ public class AuthController {
     /**
      * 5. 아이디(이메일) 찾기 - 규격 통일
      */
-    @GetMapping("/find-email")
-    public SuccessResponse<String> findEmail(@RequestParam String phoneNumber) {
-        log.info("이메일 찾기 요청: {}", phoneNumber);
+    @PostMapping("/find-email")
+    public SuccessResponse<String> findEmail(@RequestBody Map<String, String> request) {
+        // 💡 1. 프론트엔드가 보낸 택배 박스(JSON) 전체를 그대로 출력해 봅니다.
+        log.info("📦 프론트에서 넘어온 데이터 전체: {}", request);
+
+        String phoneNumber = request.get("phoneNumber");
+
+        // 💡 2. 우리가 'phoneNumber'라는 이름으로 꺼낸 값이 잘 있는지 확인합니다.
+        log.info("📞 추출된 전화번호: {}", phoneNumber);
+
         String email = authService.findEmailByPhoneNumber(phoneNumber);
 
         return new SuccessResponse<>("이메일 찾기에 성공하였습니다.", email);
     }
 
     /**
-     * 6. 비밀번호 재설정 (임시 비번 발급) - 규격 통일
+     * 6. 비밀번호 재설정 (임시 비번 발급) - 규격 통일 (@RequestParam -> @RequestBody 변경)
      */
     @PostMapping("/reset-password")
-    public SuccessResponse<String> resetPassword(@RequestParam String email, @RequestParam String phoneNumber) {
-        log.info("비밀번호 재설정 요청: {}", email);
+    public SuccessResponse<String> resetPassword(@RequestBody Map<String, String> request) {
+
+        // 프론트가 보낸 JSON 박스에서 이메일과 전화번호를 꺼냅니다.
+        String email = request.get("email");
+        String phoneNumber = request.get("phoneNumber");
+        log.info("비밀번호 재설정 요청: email={}, phoneNumber={}", email, phoneNumber);
+
         String newPassword = authService.resetPassword(email, phoneNumber);
 
         return new SuccessResponse<>("임시 비밀번호가 발급되었습니다. 로그인 후 비밀번호를 변경해 주세요.", newPassword);
@@ -123,6 +135,9 @@ public class AuthController {
     @PostMapping("/login")
     public SuccessResponse<AuthResponseDto> login(@RequestBody @Valid LoginRequestDto requestDto) {
         log.info("로그인 요청: {}", requestDto.getEmail());
+
+        // 👇 💡 두 번째 CCTV: 프론트가 보낸 비밀번호 양옆에 대괄호 [ ] 를 씌워서 기록!
+        log.info("🔑 [2. 프론트 전송] 로그인 시도 비밀번호: [{}]", requestDto.getPassword());
 
         AuthResponseDto responseDto = authService.login(requestDto.getEmail(), requestDto.getPassword());
 

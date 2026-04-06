@@ -27,26 +27,26 @@ INSERT INTO project_members (project_id, user_id, role, joined_at, created_at, u
 VALUES (1, 2, 'MEMBER', NOW(), NOW(), NOW());
 
 -- 관리자 계정 생성 (updated_at이 NULL이었던 부분을 NOW()로 수정)
-INSERT INTO users (
-    created_at,
-    updated_at,
-    deleted_at,
-    nickname,
-    phone_number,
-    email,
-    password,
-    profile_img,
-    position,
-    role
-) VALUES (
-    NOW(),
-    NOW(),
-    NULL,
-    '관리자',
-    '01099999999',
-    'admin@mate.com',
-    '$2a$10$aBb/e9umQqst4mwOfyF14u.RXqesvKXPQHjJ763He8g52Ojk25EVS',
-    NULL,
-    'BE',
-    'ROLE_ADMIN'
-);
+--INSERT INTO users (
+--    created_at,
+--    updated_at,
+--    deleted_at,
+--    nickname,
+--    phone_number,
+--    email,
+--    password,
+--    profile_img,
+--    position,
+--    role
+--) VALUES (
+--    NOW(),
+--    NOW(),
+--    NULL,
+--    '관리자',
+--    '01099999999',
+--    'admin@mate.com',
+--    '$2a$10$aBb/e9umQqst4mwOfyF14u.RXqesvKXPQHjJ763He8g52Ojk25EVS',
+--    NULL,
+--    'BE',
+--    'ROLE_ADMIN'
+--);

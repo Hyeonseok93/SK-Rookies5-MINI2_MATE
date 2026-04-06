@@ -207,6 +207,9 @@ public class AuthServiceImpl implements AuthService {
 
         String tempPassword = generateTempPassword();
 
+        // 👇 💡 첫 번째 CCTV: 백엔드가 만든 비밀번호 양옆에 대괄호 [ ] 를 씌워서 기록!
+        log.info("🔑 [1. 백엔드 생성] 임시 비밀번호: [{}]", tempPassword);
+
         // 💡 Security 버전의 필수 로직: DB에 저장할 때는 반드시 암호화!
         user.updatePassword(passwordEncoder.encode(tempPassword));
 
