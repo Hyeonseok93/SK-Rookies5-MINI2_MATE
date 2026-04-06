@@ -145,7 +145,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new BusinessException(ErrorCode.AUTH_ACCESS_DENIED);
         }
 
-        // 3. 자식 리소스들 Soft Delete (벌크 업데이트 - 지호님이 짠 코드 그대로!)
+        // 3. 자식 리소스들 Soft Delete (벌크 업데이트)
         commentRepository.softDeleteAllByProjectId(projectId);
         boardPostRepository.softDeleteAllByProjectId(projectId);
         applicationRepository.softDeleteAllByProjectId(projectId);
@@ -159,13 +159,12 @@ public class ProjectServiceImpl implements ProjectService {
      * 6. 프로젝트 모집 수동 마감
      */
     @Override
-    public ProjectResponseDto closeProjectRecruitment(Long projectId) {
+    public ProjectResponseDto closeProjectRecruitment(Long projectId, Long userId) { // ✅ userId 파라미터 추가
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PROJECT_NOT_FOUND, projectId));
 
-        // [추가] 요청한 사용자가 프로젝트 방장인지 권한 검증
-        Long currentUserId = SecurityUtils.getCurrentUserId();
-        if (!project.getOwner().getId().equals(currentUserId)) {
+        // ✅ SecurityUtils 완전 제거 — Controller에서 넘겨받은 userId로 권한 검증
+        if (!project.getOwner().getId().equals(userId)) {
             throw new BusinessException(ErrorCode.AUTH_ACCESS_DENIED);
         }
 
@@ -180,6 +179,9 @@ public class ProjectServiceImpl implements ProjectService {
         return ProjectMapper.mapToResponse(project);
     }
 
+    /**
+     * 7. 내가 작성한 모집글 목록 조회
+     */
     @Override
     @Transactional(readOnly = true)
     public List<ProjectResponseDto> getMyOwnedPosts(Long userId) {
@@ -188,6 +190,9 @@ public class ProjectServiceImpl implements ProjectService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 8. 내가 참여 중인 프로젝트 목록 조회
+     */
     @Override
     @Transactional(readOnly = true)
     public List<ProjectResponseDto> getMyJoinedProjects(Long userId) {
@@ -197,6 +202,9 @@ public class ProjectServiceImpl implements ProjectService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 9. 프로젝트 재모집 시작 (OWNER 전용)
+     */
     @Transactional
     @Override
     public ProjectResponseDto reopenProject(Long projectId, Long userId) {
