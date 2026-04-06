@@ -144,54 +144,70 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * 3. 이메일 유효성 및 중복 확인 (Controller 버전 유지)
+     * 3. 이메일 유효성 및 중복 확인 (삭제된 유저 포함)
      */
     @Transactional(readOnly = true)
     @Override
     public boolean isEmailAvailable(String email) {
+        // 1. 형식 검사
         String regex = "^[A-Za-z0-9+_.-]+@(.+)$";
         if (email == null || !email.matches(regex)) {
             throw new BusinessException(ErrorCode.INVALID_EMAIL_FORMAT);
         }
-        if (userRepository.findByEmail(email).isPresent()) {
+
+        // 2. 전체 DB 중복 검사 (Native Query로 Soft Delete 데이터까지 조회)
+        // 💡 int 결과가 0보다 크면 이미 존재하는 이메일입니다.
+        if (userRepository.countByEmailIncludingDeleted(email) > 0) {
             throw new BusinessException(ErrorCode.USER_EMAIL_DUPLICATE);
         }
         return true;
     }
 
     /**
-     * 4. 전화번호 가용성 체크 (Controller 버전 유지)
+     * 4. 전화번호 가용성 체크 (삭제된 유저 포함)
      */
     @Transactional(readOnly = true)
     @Override
     public boolean isPhoneAvailable(String phoneNumber, Long userId) {
-        if (phoneNumber == null) throw new BusinessException(ErrorCode.INVALID_PHONE_FORMAT);
+        if (phoneNumber == null) {
+            throw new BusinessException(ErrorCode.INVALID_PHONE_FORMAT);
+        }
+
         String targetPhone = phoneNumber.trim();
-        if (!targetPhone.matches("^\\d{11}$")) throw new BusinessException(ErrorCode.INVALID_PHONE_FORMAT);
+        if (!targetPhone.matches("^\\d{11}$")) {
+            throw new BusinessException(ErrorCode.INVALID_PHONE_FORMAT);
+        }
 
-        boolean isDuplicate = (userId == null) ?
-                userRepository.existsByPhoneNumber(targetPhone) :
-                userRepository.existsByPhoneNumberAndIdNot(targetPhone, userId);
+        // 💡 회원가입 시(userId == null)나 정보 수정 시 모두
+        // 탈퇴한 유저가 쓰던 번호와 겹치면 DB 제약 조건 에러가 나므로 미리 차단합니다.
+        if (userRepository.countByPhoneIncludingDeleted(targetPhone) > 0) {
+            throw new BusinessException(ErrorCode.USER_PHONE_DUPLICATE);
+        }
 
-        if (isDuplicate) throw new BusinessException(ErrorCode.USER_PHONE_DUPLICATE);
         return true;
     }
 
     /**
-     * 5. 닉네임 가용성 체크 (Controller 버전 유지)
+     * 5. 닉네임 가용성 체크 (삭제된 유저 포함)
      */
     @Transactional(readOnly = true)
     @Override
     public boolean isNicknameAvailable(String nickname, Long currentUserId) {
-        if (nickname == null) throw new BusinessException(ErrorCode.USER_NICKNAME_FORMAT_INVALID);
+        if (nickname == null) {
+            throw new BusinessException(ErrorCode.USER_NICKNAME_FORMAT_INVALID);
+        }
+
         String targetNickname = nickname.trim();
-        if (!targetNickname.matches("^[a-zA-Z0-9가-힣]{2,10}$")) throw new BusinessException(ErrorCode.USER_NICKNAME_FORMAT_INVALID);
+        // 2~10자 한글, 영문, 숫자
+        if (!targetNickname.matches("^[a-zA-Z0-9가-힣]{2,10}$")) {
+            throw new BusinessException(ErrorCode.USER_NICKNAME_FORMAT_INVALID);
+        }
 
-        boolean isDuplicate = (currentUserId == null) ?
-                userRepository.existsByNicknameIgnoreCase(targetNickname) :
-                userRepository.existsByNicknameIgnoreCaseAndIdNot(targetNickname, currentUserId);
+        // 💡 전체 DB 중복 검사 (Soft Delete 데이터 포함)
+        if (userRepository.countByNicknameIncludingDeleted(targetNickname) > 0) {
+            throw new BusinessException(ErrorCode.USER_NICKNAME_DUPLICATE);
+        }
 
-        if (isDuplicate) throw new BusinessException(ErrorCode.USER_NICKNAME_DUPLICATE);
         return true;
     }
 
