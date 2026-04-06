@@ -6,6 +6,7 @@ import com.rookies5.Backend_MATE.dto.response.ProjectResponseDto;
 import com.rookies5.Backend_MATE.dto.response.UserResponseDto;
 import com.rookies5.Backend_MATE.entity.Project;
 import com.rookies5.Backend_MATE.entity.User;
+import com.rookies5.Backend_MATE.entity.enums.TechStack; // 👈 추가
 import com.rookies5.Backend_MATE.exception.BusinessException;
 import com.rookies5.Backend_MATE.exception.EntityNotFoundException;
 import com.rookies5.Backend_MATE.exception.ErrorCode;
@@ -51,7 +52,7 @@ public class UserServiceImpl implements UserService {
     /**
      * 1. 내 정보 상세 조회
      */
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true )
     @Override
     public UserResponseDto getUserById(Long userId) {
         return userRepository.findById(userId)
@@ -90,13 +91,23 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        // 2. 비밀번호 암호화 준비
+        // ✅ 3. 기술 스택 유효성 검증 로직 추가 (프론트엔드 목록과 동기화)
+        if (requestDto.getTechStacks() != null && !requestDto.getTechStacks().isEmpty()) {
+            for (String tech : requestDto.getTechStacks()) {
+                if (!TechStack.isValid(tech)) {
+                    log.warn("프로필 수정 시 지원하지 않는 기술 스택 요청: {}", tech);
+                    throw new BusinessException(ErrorCode.VALIDATION_ERROR, "지원하지 않는 기술 스택이 포함되어 있습니다: " + tech); // 👈 INVALID_REQUEST → VALIDATION_ERROR
+                }
+            }
+        }
+
+        // 4. 비밀번호 암호화 준비
         String encodedPassword = null;
         if (requestDto.getPassword() != null && !requestDto.getPassword().isBlank()) {
             encodedPassword = passwordEncoder.encode(requestDto.getPassword());
         }
 
-        // 3. 엔티티 메서드 딱 하나만 호출해서 전부 수정!
+        // 5. 엔티티 메서드 딱 하나만 호출해서 전부 수정!
         user.updateProfile(
                 requestDto.getNickname(),
                 requestDto.getPosition(),
@@ -270,5 +281,4 @@ public class UserServiceImpl implements UserService {
         }
         return applicationService.getMyPendingApplications(userId);
     }
-
 }

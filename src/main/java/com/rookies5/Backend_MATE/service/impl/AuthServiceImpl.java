@@ -5,6 +5,7 @@ import com.rookies5.Backend_MATE.dto.response.AuthResponseDto;
 import com.rookies5.Backend_MATE.dto.response.UserResponseDto;
 import com.rookies5.Backend_MATE.entity.RefreshToken;
 import com.rookies5.Backend_MATE.entity.User;
+import com.rookies5.Backend_MATE.entity.enums.TechStack; // 👈 추가
 import com.rookies5.Backend_MATE.exception.BusinessException;
 import com.rookies5.Backend_MATE.exception.EntityNotFoundException;
 import com.rookies5.Backend_MATE.exception.ErrorCode;
@@ -48,6 +49,16 @@ public class AuthServiceImpl implements AuthService {
         // 중복 체크
         isEmailAvailable(requestDto.getEmail());
         isPhoneAvailable(requestDto.getPhoneNumber(), null);
+
+        // ✅ 기술 스택 유효성 검증 로직 추가 (프론트엔드 목록과 동기화)
+        if (requestDto.getTechStacks() != null && !requestDto.getTechStacks().isEmpty()) {
+            for (String tech : requestDto.getTechStacks()) {
+                if (!TechStack.isValid(tech)) {
+                    log.warn("회원가입 시 지원하지 않는 기술 스택 요청: {}", tech);
+                    throw new BusinessException(ErrorCode.VALIDATION_ERROR, "지원하지 않는 기술 스택이 포함되어 있습니다: " + tech); // 👈 INVALID_REQUEST → VALIDATION_ERROR
+                }
+            }
+        }
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
