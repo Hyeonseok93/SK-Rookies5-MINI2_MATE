@@ -94,9 +94,11 @@ public class AuthController {
      * 6. 비밀번호 재설정 (임시 비번 발급) - 규격 통일
      */
     @PostMapping("/reset-password")
-    public SuccessResponse<String> resetPassword(@RequestParam String email, @RequestParam String phoneNumber) {
-        log.info("비밀번호 재설정 요청: {}", email);
-        String newPassword = authService.resetPassword(email, phoneNumber);
+    public SuccessResponse<String> resetPassword(@RequestBody UserRequestDto requestDto) { // 👈 @RequestBody로 변경!
+        log.info("비밀번호 재설정 요청: {}", requestDto.getEmail());
+
+        String newPassword = authService.resetPassword(requestDto.getEmail(), requestDto.getPhoneNumber());
+
         return new SuccessResponse<>("임시 비밀번호가 발급되었습니다. 로그인 후 비밀번호를 변경해 주세요.", newPassword);
     }
 
