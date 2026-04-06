@@ -4,7 +4,6 @@ import com.rookies5.Backend_MATE.common.SuccessResponse;
 import com.rookies5.Backend_MATE.dto.request.ProjectRequestDto;
 import com.rookies5.Backend_MATE.dto.response.ProjectResponseDto;
 import com.rookies5.Backend_MATE.security.CustomUserDetails;
-import com.rookies5.Backend_MATE.security.SecurityUtils;
 import com.rookies5.Backend_MATE.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
 
 @Slf4j
@@ -29,7 +27,7 @@ public class ProjectController {
     @PostMapping
     public SuccessResponse<ProjectResponseDto> createProject(
             @Valid @RequestBody ProjectRequestDto requestDto,
-            @AuthenticationPrincipal CustomUserDetails userDetails) { // 로그인된 유저 정보
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         // 로그인된 유저의 ID를 추출합니다.
         Long currentUserId = userDetails.getId();
@@ -68,12 +66,11 @@ public class ProjectController {
     @PatchMapping("/{projectId}")
     public SuccessResponse<ProjectResponseDto> patchProject(
             @PathVariable Long projectId,
-            @AuthenticationPrincipal CustomUserDetails userDetails, // 👈 로그인 유저 정보 가져오기
-            @RequestBody ProjectRequestDto requestDto) { // 👈 @Valid는 일단 제외 (일부 필드만 오기 때문)
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody ProjectRequestDto requestDto) {
 
         log.info("프로젝트 부분 수정 요청 - projectId: {}, userId: {}", projectId, userDetails.getId());
 
-        // 서비스 메서드명을 patchProject로 바꾸고, userId도 같이 넘겨줍니다.
         ProjectResponseDto responseDto = projectService.patchProject(projectId, userDetails.getId(), requestDto);
 
         return new SuccessResponse<>("프로젝트 정보가 성공적으로 수정되었습니다.", responseDto);
@@ -83,16 +80,11 @@ public class ProjectController {
      * 프로젝트 삭제
      */
     @DeleteMapping("/{projectId}")
-    public SuccessResponse<Void> deleteProject(@PathVariable Long projectId) {
-        log.info("프로젝트 삭제 요청 - projectId: {}", projectId);
-
-        // 1. 현재 로그인한 유저의 ID를 가져옵니다. (기존에 쓰시던 SecurityUtils 활용)
-        Long currentUserId = SecurityUtils.getCurrentUserId();
-
-        // 2. 서비스 호출 시 프로젝트 ID와 유저 ID를 함께 넘깁니다.
-        // 이제 ProjectService.deleteProject(Long, Long) 이므로 에러가 나지 않습니다.
-        projectService.deleteProject(projectId, currentUserId);
-
+    public SuccessResponse<Void> deleteProject(
+            @PathVariable Long projectId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) { // ✅ SecurityUtils 제거, @AuthenticationPrincipal로 통일
+        log.info("프로젝트 삭제 요청 - projectId: {}, userId: {}", projectId, userDetails.getId());
+        projectService.deleteProject(projectId, userDetails.getId());
         return new SuccessResponse<>("프로젝트가 성공적으로 삭제되었습니다.");
     }
 
@@ -100,9 +92,11 @@ public class ProjectController {
      * 프로젝트 수동 마감
      */
     @PatchMapping("/{projectId}/close")
-    public SuccessResponse<ProjectResponseDto> closeProjectRecruitment(@PathVariable Long projectId) {
-        log.info("프로젝트 수동 마감 요청 - projectId: {}", projectId);
-        ProjectResponseDto responseDto = projectService.closeProjectRecruitment(projectId);
+    public SuccessResponse<ProjectResponseDto> closeProjectRecruitment(
+            @PathVariable Long projectId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) { // ✅ userId를 Controller에서 받아 Service로 전달
+        log.info("프로젝트 수동 마감 요청 - projectId: {}, userId: {}", projectId, userDetails.getId());
+        ProjectResponseDto responseDto = projectService.closeProjectRecruitment(projectId, userDetails.getId());
         return new SuccessResponse<>("프로젝트 모집이 마감되었습니다.", responseDto);
     }
 
@@ -112,9 +106,8 @@ public class ProjectController {
     @PatchMapping("/{projectId}/reopen")
     public SuccessResponse<ProjectResponseDto> reopenProject(
             @PathVariable Long projectId,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) { // 1. 타입 수정
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        // 2. customUserDetails에서 getId() 호출 (아까 추가한 메서드)
         ProjectResponseDto response = projectService.reopenProject(projectId, customUserDetails.getId());
 
         return new SuccessResponse<>("재모집이 시작되었습니다.", response);

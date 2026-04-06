@@ -9,6 +9,7 @@ public interface ProjectService {
 
     /**
      * 새로운 프로젝트 팀 생성
+     * @param userId 방장 유저 ID
      * @param requestDto 카테고리, 모집 인원, 마감일 등 입력 정보
      * @return 생성된 프로젝트 상세 정보 (ID, 방장 닉네임, D-Day 포함)
      */
@@ -30,6 +31,7 @@ public interface ProjectService {
     /**
      * 프로젝트 정보 수정
      * @param projectId 수정할 프로젝트 ID
+     * @param userId 요청한 유저 ID (방장 권한 검증용)
      * @param requestDto 수정할 내용 (제목, 내용, 모집 상태 등)
      * @return 수정 완료된 프로젝트 정보
      */
@@ -38,17 +40,30 @@ public interface ProjectService {
     /**
      * 프로젝트 삭제
      * @param projectId 삭제할 프로젝트 ID
+     * @param userId 요청한 유저 ID (방장 권한 검증용)
      */
     void deleteProject(Long projectId, Long userId);
 
     /**
      * 프로젝트 모집 수동 마감
      * @param projectId 마감할 프로젝트 ID
+     * @param userId 요청한 유저 ID (방장 권한 검증용) ✅ 파라미터 추가
      * @return 마감된 프로젝트 정보
      */
-    ProjectResponseDto closeProjectRecruitment(Long projectId);
+    ProjectResponseDto closeProjectRecruitment(Long projectId, Long userId);
 
-    List<ProjectResponseDto> getMyOwnedPosts(Long userId);      // (1) 내 모집글
-    List<ProjectResponseDto> getMyJoinedProjects(Long userId);   // (2) 참여 중인 프로젝트
+    /**
+     * 내가 작성한 모집글 목록 조회
+     */
+    List<ProjectResponseDto> getMyOwnedPosts(Long userId);
+
+    /**
+     * 내가 참여 중인 프로젝트 목록 조회
+     */
+    List<ProjectResponseDto> getMyJoinedProjects(Long userId);
+
+    /**
+     * 프로젝트 재모집 시작 (OWNER 전용)
+     */
     ProjectResponseDto reopenProject(Long projectId, Long userId);
 }

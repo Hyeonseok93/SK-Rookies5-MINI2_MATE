@@ -2,7 +2,6 @@ package com.rookies5.Backend_MATE.service.impl;
 
 import com.rookies5.Backend_MATE.dto.request.ProjectRequestDto;
 import com.rookies5.Backend_MATE.dto.response.ProjectResponseDto;
-import com.rookies5.Backend_MATE.entity.BoardPost;
 import com.rookies5.Backend_MATE.entity.Project;
 import com.rookies5.Backend_MATE.entity.ProjectMember;
 import com.rookies5.Backend_MATE.entity.User;
@@ -19,7 +18,6 @@ import com.rookies5.Backend_MATE.repository.CommentRepository;
 import com.rookies5.Backend_MATE.repository.ProjectMemberRepository;
 import com.rookies5.Backend_MATE.repository.ProjectRepository;
 import com.rookies5.Backend_MATE.repository.UserRepository;
-import com.rookies5.Backend_MATE.security.SecurityUtils; // [추가]
 import com.rookies5.Backend_MATE.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,6 +37,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
     private final BoardPostRepository boardPostRepository;
     private final CommentRepository commentRepository;
+    // ✅ SecurityUtils import 완전 제거
 
     /**
      * 1. 프로젝트 생성 (로그인 유저 기반 자동 설정)
@@ -117,7 +116,7 @@ public class ProjectServiceImpl implements ProjectService {
      */
     @Override
     @Transactional
-    public void deleteProject(Long projectId, Long userId) { // userId 파라미터 추가
+    public void deleteProject(Long projectId, Long userId) {
         // 1. 프로젝트 존재 확인
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PROJECT_NOT_FOUND, projectId));
@@ -127,7 +126,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new BusinessException(ErrorCode.AUTH_ACCESS_DENIED);
         }
 
-        // 3. 자식 리소스들 Soft Delete (벌크 업데이트 - 지호님이 짠 코드 그대로!)
+        // 3. 자식 리소스들 Soft Delete (벌크 업데이트)
         commentRepository.softDeleteAllByProjectId(projectId);
         boardPostRepository.softDeleteAllByProjectId(projectId);
         applicationRepository.softDeleteAllByProjectId(projectId);
@@ -141,13 +140,12 @@ public class ProjectServiceImpl implements ProjectService {
      * 6. 프로젝트 모집 수동 마감
      */
     @Override
-    public ProjectResponseDto closeProjectRecruitment(Long projectId) {
+    public ProjectResponseDto closeProjectRecruitment(Long projectId, Long userId) { // ✅ userId 파라미터 추가
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PROJECT_NOT_FOUND, projectId));
 
-        // [추가] 요청한 사용자가 프로젝트 방장인지 권한 검증
-        Long currentUserId = SecurityUtils.getCurrentUserId();
-        if (!project.getOwner().getId().equals(currentUserId)) {
+        // ✅ SecurityUtils 완전 제거 — Controller에서 넘겨받은 userId로 권한 검증
+        if (!project.getOwner().getId().equals(userId)) {
             throw new BusinessException(ErrorCode.AUTH_ACCESS_DENIED);
         }
 
@@ -162,6 +160,9 @@ public class ProjectServiceImpl implements ProjectService {
         return ProjectMapper.mapToResponse(project);
     }
 
+    /**
+     * 7. 내가 작성한 모집글 목록 조회
+     */
     @Override
     @Transactional(readOnly = true)
     public List<ProjectResponseDto> getMyOwnedPosts(Long userId) {
@@ -170,6 +171,9 @@ public class ProjectServiceImpl implements ProjectService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 8. 내가 참여 중인 프로젝트 목록 조회
+     */
     @Override
     @Transactional(readOnly = true)
     public List<ProjectResponseDto> getMyJoinedProjects(Long userId) {
@@ -179,6 +183,9 @@ public class ProjectServiceImpl implements ProjectService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 9. 프로젝트 재모집 시작 (OWNER 전용)
+     */
     @Transactional
     @Override
     public ProjectResponseDto reopenProject(Long projectId, Long userId) {
@@ -197,7 +204,6 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         // 4. 재모집 로직 실행 (엔티티 메서드 호출)
-        // 인원이나 날짜 수정 없이 상태만 바꾼다면 기존 값을 그대로 넘깁니다.
         project.reopen(project.getRecruitCount(), project.getEndDate());
 
         return ProjectMapper.mapToResponse(project, userId);

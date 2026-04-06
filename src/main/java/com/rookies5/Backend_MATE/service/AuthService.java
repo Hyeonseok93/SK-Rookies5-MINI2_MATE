@@ -3,7 +3,6 @@ package com.rookies5.Backend_MATE.service;
 import com.rookies5.Backend_MATE.dto.request.UserRequestDto;
 import com.rookies5.Backend_MATE.dto.response.AuthResponseDto;
 import com.rookies5.Backend_MATE.dto.response.UserResponseDto;
-import org.springframework.web.multipart.MultipartFile;
 
 public interface AuthService {
 
@@ -42,7 +41,14 @@ public interface AuthService {
      */
     String resetPassword(String email, String phoneNumber);
 
-    void logout(Long userId);
+    /**
+     * 8. 로그아웃
+     * ✅ userId → email 로 변경 (Controller에서 DB 조회 제거)
+     */
+    void logout(String email);
 
+    /**
+     * 9. 토큰 재발급
+     */
     AuthResponseDto refresh(String refreshToken);
 }
