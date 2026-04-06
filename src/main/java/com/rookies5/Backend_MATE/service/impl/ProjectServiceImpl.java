@@ -59,6 +59,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .project(savedProject)
                 .user(owner)
                 .role(MemberRole.OWNER)
+                .position(owner.getPosition())
                 .build();
 
         projectMemberRepository.save(leader);
