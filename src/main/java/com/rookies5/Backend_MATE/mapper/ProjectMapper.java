@@ -19,6 +19,7 @@ public class ProjectMapper {
      */
     public static ProjectResponseDto mapToResponse(Project project) {
         return mapToResponse(project, null);
+
     }
 
     /**
@@ -49,7 +50,7 @@ public class ProjectMapper {
                 .ownerId(ownerId)
                 .ownerNickname(ownerNickname)
                 // 방장의 최신 프로필 이미지 매핑
-                .ownerProfileImg(project.getOwner() != null ? project.getOwner().getProfileImg() : null)
+                .ownerProfileImg(owner != null ? owner.getProfileImg() : null)
                 .category(project.getCategory())
                 .techStacks(project.getTechStacks())
                 .title(project.getTitle())
