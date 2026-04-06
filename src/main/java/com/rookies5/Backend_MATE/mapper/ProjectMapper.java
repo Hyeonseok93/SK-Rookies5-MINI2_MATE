@@ -24,6 +24,7 @@ public class ProjectMapper {
                 // ★ 상세 페이지 섹션에 필요한 방장의 최신 프로필 이미지 추가!
                 .ownerProfileImg(project.getOwner() != null ? project.getOwner().getProfileImg() : null)
                 .category(project.getCategory())
+                .techStacks(project.getTechStacks())
                 .title(project.getTitle())
                 .content(project.getContent())
                 .recruitCount(project.getRecruitCount())
@@ -52,6 +53,7 @@ public class ProjectMapper {
                 // ★ 방장의 최신 프로필 이미지 매핑
                 .ownerProfileImg(project.getOwner() != null ? project.getOwner().getProfileImg() : null)
                 .category(project.getCategory())
+                .techStacks(project.getTechStacks())
                 .title(project.getTitle())
                 .content(project.getContent())
                 .recruitCount(project.getRecruitCount())
@@ -75,6 +77,7 @@ public class ProjectMapper {
                 .owner(owner) // 파라미터로 받은 실제 User 엔티티 연결
                 .category(requestDto.getCategory())
                 .title(requestDto.getTitle())
+                .techStacks(requestDto.getTechStacks())
                 .content(requestDto.getContent())
                 .recruitCount(requestDto.getRecruitCount())
                 // 방장 본인이 첫 번째 멤버이므로 보통 1로 시작

@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -17,12 +18,13 @@ public class ProjectResponseDto {
     private Long id;
     private Long ownerId;
     private String ownerNickname;
-    // 💡 마이페이지에서 수정한 최신 이미지를 반영하기 위해 추가
+    // 마이페이지에서 수정한 최신 이미지를 반영하기 위해 추가
     private String ownerProfileImg;
 
     private Category category;
     private String title;
     private String content;
+    private Set<String> techStacks;
 
     private Integer recruitCount;
     private Integer currentCount;

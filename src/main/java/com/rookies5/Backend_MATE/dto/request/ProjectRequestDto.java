@@ -37,4 +37,6 @@ public class ProjectRequestDto {
     @NotNull(message = "마감일은 필수입니다.")
     @FutureOrPresent(message = "마감일은 오늘 이후여야 합니다.")
     private LocalDate endDate;
+
+    private java.util.Set<String> techStacks;
 }

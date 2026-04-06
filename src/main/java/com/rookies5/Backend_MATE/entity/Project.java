@@ -69,6 +69,12 @@ public class Project extends BaseEntity {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "project_tech_stacks", joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "tech_stack_name")
+    @Builder.Default
+    private java.util.Set<String> techStacks = new java.util.HashSet<>();
+
     public void addMember() {
         if (this.currentCount >= this.recruitCount) {
             throw new IllegalStateException("모집 정원이 가득 찼습니다.");
@@ -99,6 +105,11 @@ public class Project extends BaseEntity {
         if (dto.getOnOffline() != null) this.onOffline = dto.getOnOffline();
         if (dto.getEndDate() != null) this.endDate = dto.getEndDate();
         if (dto.getStatus() != null) this.status = dto.getStatus();
+        // 기술스택 업데이트 로직 추가
+        if (dto.getTechStacks() != null) {
+            this.techStacks.clear();
+            this.techStacks.addAll(dto.getTechStacks());
+        }
     }
 
     // 모집글 수동마감 후 다시 재오픈
