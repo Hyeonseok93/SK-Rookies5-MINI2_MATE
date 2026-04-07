@@ -12,6 +12,8 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Lo
     // 프로젝트 ID로 팀원 목록 찾기
     List<ProjectMember> findAllByProjectId(Long projectId);
 
+    List<ProjectMember> findAllByUserId(Long userId);
+
     boolean existsByProjectIdAndUserId(Long projectId, Long userId);
 
     //프로젝트 삭제 -> 멤버 삭제

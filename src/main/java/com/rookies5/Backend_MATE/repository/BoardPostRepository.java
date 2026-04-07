@@ -31,4 +31,10 @@ public interface BoardPostRepository extends JpaRepository<BoardPost, Long> {
     @Query("UPDATE BoardPost b SET b.deletedAt = CURRENT_TIMESTAMP WHERE b.author.id = :userId AND b.deletedAt IS NULL")
     void softDeleteAllByAuthorId(@Param("userId") Long userId);
 
+    //방장 멤버 강제 탈퇴 -> 게시글 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE BoardPost b SET b.deletedAt = CURRENT_TIMESTAMP " +
+            "WHERE b.project.id = :projectId AND b.author.id = :authorId AND b.deletedAt IS NULL")
+    void softDeleteAllByProjectIdAndAuthorId(@Param("projectId") Long projectId, @Param("authorId") Long authorId);
+
 }

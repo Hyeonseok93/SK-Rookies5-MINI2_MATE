@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
     // 프로젝트 ID로 지원서 목록 찾기
@@ -34,6 +35,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             "AND a.status != com.rookies5.Backend_MATE.entity.enums.ApplicationStatus.ACCEPTED " +
             "AND p.deletedAt IS NULL")
     List<Application> findAllPendingByApplicantIdExcludingDeleted(@Param("applicantId") Long applicantId);
+    //중복 지원 확인 및 강제 퇴출 시 지원서 상태 변경을 위한 조회
+    Optional<Application> findByProjectIdAndApplicantId(Long projectId, Long applicantId);
 
     //프로젝트 삭제 -> 지원서 삭제
     @Modifying(clearAutomatically = true)

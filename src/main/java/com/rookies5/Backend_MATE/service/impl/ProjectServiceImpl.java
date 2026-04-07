@@ -199,14 +199,29 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /**
-     * 8. 내가 참여 중인 프로젝트 목록 조회
+     * 8. 내가 참여 중인 프로젝트 목록 조회 (수정 버전)
      */
     @Override
     @Transactional(readOnly = true)
     public List<ProjectResponseDto> getMyJoinedProjects(Long userId) {
-        return applicationRepository.findAllByApplicantIdAndStatus(userId, ApplicationStatus.ACCEPTED)
-                .stream()
-                .map(app -> ProjectMapper.mapToResponse(app.getProject(), userId))
+        return projectMemberRepository.findAllByUserId(userId).stream()
+                // 1. 기존 유지: 강퇴당한(Soft Delete된) 멤버는 제외
+                .filter(member -> member.getDeletedAt() == null)
+
+                // 2. 수정: 매핑 시 포지션 정보 주입
+                .map(member -> {
+                    // 기존 매퍼를 사용하여 기본 DTO 생성
+                    ProjectResponseDto dto = ProjectMapper.mapToResponse(member.getProject(), userId);
+
+                    // 핵심: 현재 순회 중인 '나(member)'의 포지션을 DTO에 세팅!
+                    if (member.getPosition() != null) {
+                        dto.setApplicantPosition(member.getPosition().name());
+                    } else {
+                        dto.setApplicantPosition("선택없음");
+                    }
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 

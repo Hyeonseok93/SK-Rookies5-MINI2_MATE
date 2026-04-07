@@ -116,12 +116,18 @@ public class ApplicationServiceImpl implements ApplicationService {
     /**
      * 4. 내 신청 현황 조회 (PENDING, REJECTED 상태)
      */
+    // ApplicationServiceImpl.java (예시)
     @Override
     @Transactional(readOnly = true)
     public List<ApplicationResponseDto> getMyPendingApplications(Long userId) {
+
         return applicationRepository.findAllPendingByApplicantIdExcludingDeleted(userId)
+        // 💡 수락(ACCEPTED) 상태가 아닌 모든 지원서(PENDING, REJECTED)를 가져옵니다.
+        // 그래야 강퇴당해서 REJECTED로 바뀐 내역이 이 목록에 나타납니다!
+        return applicationRepository.findAllByApplicantIdAndStatusNot(userId, ApplicationStatus.ACCEPTED)
                 .stream()
-                .map(ApplicationMapper::mapToApplicationResponse)
+                .filter(app -> app.getDeletedAt() == null) // 지원 취소한 건 제외
+                .map(ApplicationResponseDto::from)
                 .collect(Collectors.toList());
     }
 

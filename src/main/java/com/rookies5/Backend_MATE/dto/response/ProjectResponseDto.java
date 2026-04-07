@@ -34,6 +34,7 @@ public class ProjectResponseDto {
     private LocalDate endDate;
     private Long remainingDays;
     private LocalDateTime createdAt;
+    private String applicantPosition;
 
     //삭제구현
     private boolean deleted;

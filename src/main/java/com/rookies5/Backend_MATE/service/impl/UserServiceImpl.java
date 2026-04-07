@@ -258,17 +258,17 @@ public class UserServiceImpl implements UserService {
         return projectService.getMyOwnedPosts(userId);
     }
 
-        /**
-         * 10. 참여 중인 프로젝트/스터디 조회 (본인 확인 추가)
-         */
-        @Transactional(readOnly = true)
-        @Override
-        public List<ProjectResponseDto> getMyJoinedProjects(Long userId, User currentUser) {
-            if (!userId.equals(currentUser.getId())) {
-                throw new BusinessException(ErrorCode.AUTH_ACCESS_DENIED);
-            }
-            return projectService.getMyJoinedProjects(userId);
+    /**
+     * 10. 참여 중인 프로젝트/스터디 조회 (본인 확인 추가)
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public List<ProjectResponseDto> getMyJoinedProjects(Long userId, User currentUser) {
+        if (!userId.equals(currentUser.getId())) {
+            throw new BusinessException(ErrorCode.AUTH_ACCESS_DENIED);
         }
+        return projectService.getMyJoinedProjects(userId);
+    }
 
     /**
      * 11. 내 지원 현황 조회 (본인 확인 추가)

@@ -33,5 +33,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Comment c SET c.deletedAt = CURRENT_TIMESTAMP WHERE c.author.id = :userId AND c.deletedAt IS NULL")
     void softDeleteAllByAuthorId(@Param("userId") Long userId);
+
+    //방장 멤버 강제 탈퇴 -> 댓글 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Comment c SET c.deletedAt = CURRENT_TIMESTAMP " +
+            "WHERE c.post.id IN (SELECT b.id FROM BoardPost b WHERE b.project.id = :projectId) " + // b.deletedAt 조건 제거
+            "AND c.author.id = :authorId " +
+            "AND c.deletedAt IS NULL")
+    void softDeleteAllByProjectIdAndAuthorId(@Param("projectId") Long projectId, @Param("authorId") Long authorId);
 }
 

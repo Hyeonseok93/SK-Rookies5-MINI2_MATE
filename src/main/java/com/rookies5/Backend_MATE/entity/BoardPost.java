@@ -1,6 +1,7 @@
 package com.rookies5.Backend_MATE.entity;
 
 import com.rookies5.Backend_MATE.dto.request.BoardPostRequestDto;
+import com.rookies5.Backend_MATE.entity.enums.BoardPostType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -35,6 +36,9 @@ public class BoardPost extends BaseEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     @NotBlank(message = "내용은 필수입니다")
     private String content;
+
+    @Enumerated(EnumType.STRING)
+    private BoardPostType type;
 
     @Builder.Default
     @Column(name = "view_count", nullable = false)
