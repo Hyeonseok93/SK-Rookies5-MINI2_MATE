@@ -7,6 +7,7 @@ import com.rookies5.Backend_MATE.entity.Project;
 import com.rookies5.Backend_MATE.entity.ProjectMember;
 import com.rookies5.Backend_MATE.entity.User;
 import com.rookies5.Backend_MATE.entity.enums.ApplicationStatus;
+import com.rookies5.Backend_MATE.entity.enums.Category;
 import com.rookies5.Backend_MATE.entity.enums.MemberRole;
 import com.rookies5.Backend_MATE.entity.enums.ProjectStatus;
 import com.rookies5.Backend_MATE.exception.BusinessException;
@@ -82,22 +83,26 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /**
-     * 3. 전체 목록 조회 (페이징 지원)
+     * 3. 전체 목록 조회 (카테고리 & 키워드 필터링 및 페이징 지원)
      */
     @Transactional(readOnly = true)
     @Override
-    public Page<ProjectResponseDto> getAllProjects(String category, String keyword, Pageable pageable) {
-        Page<Project> projectPage;
+    public Page<ProjectResponseDto> getAllProjects(String categoryStr, String keyword, Pageable pageable) {
+        Category category = null;
 
-        // 1. 키워드 검색 시
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            projectPage = projectRepository.searchProjects(keyword, pageable);
-        } else {
-            // 2. 전체 조회 (카테고리 필터링은 추후 QueryDSL 등으로 보완 가능, 현재는 전체 페이징)
-            projectPage = projectRepository.findAllActiveProjects(pageable);
+        // 1. 카테고리 문자열을 Enum으로 변환
+        if (categoryStr != null && !categoryStr.trim().isEmpty()) {
+            try {
+                category = Category.valueOf(categoryStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // 잘못된 카테고리 값이 들어오면 필터링하지 않음 (null 유지)
+            }
         }
 
-        // 3. DTO 변환 및 카테고리 인메모리 필터링 (간단한 경우)
+        // 2. 통합 필터링 쿼리 호출 (카테고리, 키워드 검색 포함)
+        Page<Project> projectPage = projectRepository.findAllWithFilters(category, keyword, pageable);
+
+        // 3. DTO 변환 및 반환
         return projectPage.map(ProjectMapper::mapToResponse);
     }
 
