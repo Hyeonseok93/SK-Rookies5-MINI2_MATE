@@ -65,7 +65,8 @@
 
         <div style="margin-top:50px;">
             <form action="/admin/logout" method="post" style="display:inline;">
-                <button type="submit" style="background:#6366f1; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
+                <button type="submit"
+                        style="background:#6366f1; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
                     🚪 로그아웃
                 </button>
             </form>
@@ -107,29 +108,41 @@
                         <td>
                             <button class="btn-detail" th:attr="data-id=${u.id}">상세</button>
 
-                            <form th:if="${!u.deleted}" th:action="@{/admin/users/delete/{id}(id=${u.id})}" method="post" style="display:inline;" onsubmit="return confirm('삭제하시겠습니까?');">
-                                <input type="hidden" name="userPage" th:value="${users.number}" />
+                            <form th:if="${!u.deleted}" th:action="@{/admin/users/delete/{id}(id=${u.id})}"
+                                  method="post" style="display:inline;" onsubmit="return confirm('삭제하시겠습니까?');">
+                                <input type="hidden" name="userPage" th:value="${users.number}"/>
                                 <input type="hidden" name="redirectPage" value="dashboard"/>
+                                <input type="hidden" name="keyword" th:value="${keyword}"/>
                                 <button type="submit" class="btn-delete">삭제</button>
                             </form>
 
-                            <form th:if="${u.deleted}" th:action="@{/admin/users/restore/{id}(id=${u.id})}" method="post" style="display:inline;" onsubmit="return confirm('복구하시겠습니까?');">
-                                <input type="hidden" name="userPage" th:value="${users.number}" />
+                            <form th:if="${u.deleted}" th:action="@{/admin/users/restore/{id}(id=${u.id})}"
+                                  method="post" style="display:inline;" onsubmit="return confirm('복구하시겠습니까?');">
+                                <input type="hidden" name="userPage" th:value="${users.number}"/>
                                 <input type="hidden" name="redirectPage" value="dashboard"/>
-                                <button type="submit" style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px;">복구</button>
+                                <input type="hidden" name="keyword" th:value="${keyword}"/>
+                                <button type="submit"
+                                        style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px;">
+                                    복구
+                                </button>
                             </form>
                         </td>
                     </tr>
                 </table>
 
+                <!-- 최근 가입 회원 페이징 -->
                 <div class="pagination">
-                    <a th:href="@{/admin/dashboard(userPage=0, projectPage=${projects.number})}">&lt;&lt;</a>
-                    <a th:if="${users.number > 0}" th:href="@{/admin/dashboard(userPage=${users.number-1}, projectPage=${projects.number})}">&lt;</a>
-                    <span th:each="i : ${#numbers.sequence(0, users.totalPages-1)}" th:if="${i >= users.number-2 and i <= users.number+2}">
-                        <a th:href="@{/admin/dashboard(userPage=${i}, projectPage=${projects.number})}" th:text="${i+1}" th:classappend="${i==users.number} ? 'active'"></a>
+                    <a th:href="@{/admin/search(userPage=0, projectPage=${projects.number}, keyword=${keyword}, redirectPage='dashboard')}">&lt;&lt;</a>
+                    <a th:if="${users.number > 0}"
+                       th:href="@{/admin/search(userPage=${users.number-1}, projectPage=${projects.number}, keyword=${keyword}, redirectPage='dashboard')}">&lt;</a>
+                    <span th:each="i : ${#numbers.sequence(0, users.totalPages-1)}"
+                          th:if="${i >= users.number-2 and i <= users.number+2}">
+                        <a th:href="@{/admin/search(userPage=${i}, projectPage=${projects.number}, keyword=${keyword}, redirectPage='dashboard')}"
+                           th:text="${i+1}" th:classappend="${i==users.number} ? 'active'"></a>
                     </span>
-                    <a th:if="${users.number < users.totalPages-1}" th:href="@{/admin/dashboard(userPage=${users.number+1}, projectPage=${projects.number})}">&gt;</a>
-                    <a th:href="@{/admin/dashboard(userPage=${users.totalPages-1}, projectPage=${projects.number})}">&gt;&gt;</a>
+                    <a th:if="${users.number < users.totalPages-1}"
+                       th:href="@{/admin/search(userPage=${users.number+1}, projectPage=${projects.number}, keyword=${keyword}, redirectPage='dashboard')}">&gt;</a>
+                    <a th:href="@{/admin/search(userPage=${users.totalPages-1}, projectPage=${projects.number}, keyword=${keyword}, redirectPage='dashboard')}">&gt;&gt;</a>
                 </div>
             </div>
 
@@ -139,18 +152,20 @@
                 <ul>
                     <li class="card-left-align" th:each="log : ${logs}" th:text="${log.action}"></li>
                 </ul>
+                <!-- 활동 로그 페이징 -->
                 <div class="pagination">
-                    <a th:href="@{/admin/dashboard(userPage=${users.number}, projectPage=${projects.number}, logPage=0)}">&lt;&lt;</a>
-                    <a th:if="${logs.number > 0}" th:href="@{/admin/dashboard(userPage=${users.number}, projectPage=${projects.number}, logPage=${logs.number-1})}">&lt;</a>
-
-                    <span th:each="i : ${#numbers.sequence(0, logs.totalPages-1)}" th:if="${i >= logs.number-2 and i <= logs.number+2}">
-                        <a th:href="@{/admin/dashboard(userPage=${users.number}, projectPage=${projects.number}, logPage=${i})}"
+                    <a th:href="@{/admin/search(userPage=${users.number}, projectPage=${projects.number}, logPage=0, keyword=${keyword}, redirectPage='dashboard')}">&lt;&lt;</a>
+                    <a th:if="${logs.number > 0}"
+                       th:href="@{/admin/search(userPage=${users.number}, projectPage=${projects.number}, logPage=${logs.number-1}, keyword=${keyword}, redirectPage='dashboard')}">&lt;</a>
+                    <span th:each="i : ${#numbers.sequence(0, logs.totalPages-1)}"
+                          th:if="${i >= logs.number-2 and i <= logs.number+2}">
+                        <a th:href="@{/admin/search(userPage=${users.number}, projectPage=${projects.number}, logPage=${i}, keyword=${keyword}, redirectPage='dashboard')}"
                            th:text="${i+1}"
                            th:classappend="${i==logs.number} ? 'active'"></a>
                     </span>
-
-                    <a th:if="${logs.number < logs.totalPages-1}" th:href="@{/admin/dashboard(userPage=${users.number}, projectPage=${projects.number}, logPage=${logs.number+1})}">&gt;</a>
-                    <a th:href="@{/admin/dashboard(userPage=${users.number}, projectPage=${projects.number}, logPage=${logs.totalPages-1})}">&gt;&gt;</a>
+                    <a th:if="${logs.number < logs.totalPages-1}"
+                       th:href="@{/admin/search(userPage=${users.number}, projectPage=${projects.number}, logPage=${logs.number+1}, keyword=${keyword}, redirectPage='dashboard')}">&gt;</a>
+                    <a th:href="@{/admin/search(userPage=${users.number}, projectPage=${projects.number}, logPage=${logs.totalPages-1}, keyword=${keyword}, redirectPage='dashboard')}">&gt;&gt;</a>
                 </div>
             </div>
 
@@ -176,25 +191,41 @@
                         <td>
                             <button class="btn-project-detail" th:attr="data-id=${p.id}">상세</button>
 
-                            <form th:if="${!p.deleted}" th:action="@{/admin/projects/delete/{id}(id=${p.id})}" method="post" style="display:inline;" onsubmit="return confirm('삭제하시겠습니까?');">
+                            <form th:if="${!p.deleted}" th:action="@{/admin/projects/delete/{id}(id=${p.id})}"
+                                  method="post" style="display:inline;" onsubmit="return confirm('삭제하시겠습니까?');">
+                                <input type="hidden" name="projectPage" th:value="${projects.number}"/>
+                                <input type="hidden" name="redirectPage" value="dashboard"/>
+                                <input type="hidden" name="keyword" th:value="${keyword}"/>
                                 <button type="submit" class="btn-delete">삭제</button>
                             </form>
 
-                            <form th:if="${p.deleted}" th:action="@{/admin/projects/restore/{id}(id=${p.id})}" method="post" style="display:inline;" onsubmit="return confirm('복구하시겠습니까?');">
-                                <button type="submit" style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px;">복구</button>
+                            <form th:if="${p.deleted}" th:action="@{/admin/projects/restore/{id}(id=${p.id})}"
+                                  method="post" style="display:inline;" onsubmit="return confirm('복구하시겠습니까?');">
+                                <input type="hidden" name="projectPage" th:value="${projects.number}"/>
+                                <input type="hidden" name="redirectPage" value="dashboard"/>
+                                <input type="hidden" name="keyword" th:value="${keyword}"/>
+                                <button type="submit"
+                                        style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px;">
+                                    복구
+                                </button>
                             </form>
                         </td>
                     </tr>
                 </table>
 
+                <!-- 최근 게시글 페이징 -->
                 <div class="pagination">
-                    <a th:href="@{/admin/dashboard(userPage=${users.number}, projectPage=0)}">&lt;&lt;</a>
-                    <a th:if="${projects.number > 0}" th:href="@{/admin/dashboard(userPage=${users.number}, projectPage=${projects.number-1})}">&lt;</a>
-                    <span th:each="i : ${#numbers.sequence(0, projects.totalPages-1)}" th:if="${i >= projects.number-2 and i <= projects.number+2}">
-                        <a th:href="@{/admin/dashboard(userPage=${users.number}, projectPage=${i})}" th:text="${i+1}" th:classappend="${i==projects.number} ? 'active'"></a>
+                    <a th:href="@{/admin/search(userPage=${users.number}, projectPage=0, keyword=${keyword}, redirectPage='dashboard')}">&lt;&lt;</a>
+                    <a th:if="${projects.number > 0}"
+                       th:href="@{/admin/search(userPage=${users.number}, projectPage=${projects.number-1}, keyword=${keyword}, redirectPage='dashboard')}">&lt;</a>
+                    <span th:each="i : ${#numbers.sequence(0, projects.totalPages-1)}"
+                          th:if="${i >= projects.number-2 and i <= projects.number+2}">
+                    <a th:href="@{/admin/search(userPage=${users.number}, projectPage=${i}, keyword=${keyword}, redirectPage='dashboard')}"
+                       th:text="${i+1}" th:classappend="${i==projects.number} ? 'active'"></a>
                     </span>
-                    <a th:if="${projects.number < projects.totalPages-1}" th:href="@{/admin/dashboard(userPage=${users.number}, projectPage=${projects.number+1})}">&gt;</a>
-                    <a th:href="@{/admin/dashboard(userPage=${users.number}, projectPage=${projects.totalPages-1})}">&gt;&gt;</a>
+                    <a th:if="${projects.number < projects.totalPages-1}"
+                       th:href="@{/admin/search(userPage=${users.number}, projectPage=${projects.number+1}, keyword=${keyword}, redirectPage='dashboard')}">&gt;</a>
+                    <a th:href="@{/admin/search(userPage=${users.number}, projectPage=${projects.totalPages-1}, keyword=${keyword}, redirectPage='dashboard')}">&gt;&gt;</a>
                 </div>
             </div>
         </div>

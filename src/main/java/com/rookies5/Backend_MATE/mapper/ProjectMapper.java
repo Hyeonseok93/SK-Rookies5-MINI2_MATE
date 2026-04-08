@@ -60,6 +60,7 @@ public class ProjectMapper {
                 .currentCount(project.getCurrentCount())
                 .status(project.getStatus())
                 .onOffline(project.getOnOffline())
+                .createdAt(project.getCreatedAt())
                 .endDate(project.getEndDate())
                 .deleted(project.getDeletedAt() != null)
                 // D-Day 계산
