@@ -33,7 +33,7 @@
 ### Infrastructure & Others
 - **File Storage**: Cloudinary (프로필 이미지 업로드)
 - **Monitoring**: Spring Boot Actuator, Spring Boot Admin
-- **Library**: Lombok, Validation, MapStruct (Mapper)
+- **Library**: Lombok, Validation, Custom Mapper (Entity-DTO 매퍼 클래스)
 
 ---
 
