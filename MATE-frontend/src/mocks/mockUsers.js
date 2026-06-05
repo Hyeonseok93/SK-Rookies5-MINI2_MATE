@@ -1,0 +1,37 @@
+export const generateUsers = () => {
+  return [
+    { id: 1, email: 'user_1@test.com', password: '1234', nickname: '프론트깍이', phoneNumber: '01011110001', position: 'FE', techStacks: ['React', 'TypeScript', 'Tailwind CSS'], intro: '깔끔한 UI를 지향하는 프론트엔드 개발자입니다.', createdAt: '2026-03-01T10:00:00.000Z' },
+    { id: 2, email: 'user_2@test.com', password: '1234', nickname: '백엔드장인', phoneNumber: '01011110002', position: 'BE', techStacks: ['Java', 'Spring Boot', 'MySQL'], intro: '견고한 서버 설계를 중요하게 생각합니다.', createdAt: '2026-03-02T10:00:00.000Z' },
+    { id: 3, email: 'user_3@test.com', password: '1234', nickname: '디자인천재', phoneNumber: '01011110003', position: 'DE', techStacks: ['Figma', 'Adobe XD', 'Photoshop'], intro: '사용자 경험을 극대화하는 디자이너입니다.', createdAt: '2026-03-03T10:00:00.000Z' },
+    { id: 4, email: 'user_4@test.com', password: '1234', nickname: '기획마스터', phoneNumber: '01011110004', position: 'PM', techStacks: ['Jira', 'Notion', 'Confluence'], intro: '프로젝트의 방향타를 잡는 기획자입니다.', createdAt: '2026-03-04T10:00:00.000Z' },
+    { id: 5, email: 'user_5@test.com', password: '1234', nickname: '풀스택꿈나무', phoneNumber: '01011110005', position: 'BE', techStacks: ['Node.js', 'Express', 'React', 'MongoDB'], intro: '프론트와 백엔드를 아우르는 개발자가 되고 싶습니다.', createdAt: '2026-03-05T10:00:00.000Z' },
+    { id: 6, email: 'user_6@test.com', password: '1234', nickname: '뷰전문가', phoneNumber: '01011110006', position: 'FE', techStacks: ['Vue.js', 'Vite', 'Pinia', 'JavaScript'], intro: 'Vue 생태계를 사랑하는 개발자입니다.', createdAt: '2026-03-06T10:00:00.000Z' },
+    { id: 7, email: 'user_7@test.com', password: '1234', nickname: '파이썬술사', phoneNumber: '01011110007', position: 'BE', techStacks: ['Python', 'Django', 'PostgreSQL', 'Redis'], intro: '파이썬의 간결함을 사랑합니다.', createdAt: '2026-03-07T10:00:00.000Z' },
+    { id: 8, email: 'user_8@test.com', password: '1234', nickname: 'UI구조대', phoneNumber: '01011110008', position: 'DE', techStacks: ['Figma', 'Framer', 'Canva'], intro: '디테일한 인터랙션을 구현합니다.', createdAt: '2026-03-08T10:00:00.000Z' },
+    { id: 9, email: 'user_9@test.com', password: '1234', nickname: '서비스빌더', phoneNumber: '01011110009', position: 'PM', techStacks: ['Slack', 'Miro', 'Google Analytics'], intro: '데이터 기반의 의사결정을 선호합니다.', createdAt: '2026-03-09T10:00:00.000Z' },
+    { id: 10, email: 'user_10@test.com', password: '1234', nickname: '데브옵스왕', phoneNumber: '01011110010', position: 'ETC', techStacks: ['Docker', 'Kubernetes', 'AWS', 'Terraform'], intro: '자동화와 인프라 최적화 전문가입니다.', createdAt: '2026-03-10T10:00:00.000Z' },
+    { id: 11, email: 'user_11@test.com', password: '1234', nickname: '넥스트레벨', phoneNumber: '01011110011', position: 'FE', techStacks: ['Next.js', 'TanStack Query', 'Emotion'], intro: 'SSR과 성능 최적화에 관심이 많습니다.', createdAt: '2026-03-11T10:00:00.000Z' },
+    { id: 12, email: 'user_12@test.com', password: '1234', nickname: '코틀린러버', phoneNumber: '01011110012', position: 'BE', techStacks: ['Kotlin', 'Spring Boot', 'MariaDB'], intro: '안정적인 코틀린 서버를 구축합니다.', createdAt: '2026-03-12T10:00:00.000Z' },
+    { id: 13, email: 'user_13@test.com', password: '1234', nickname: '픽셀아트', phoneNumber: '01011110013', position: 'DE', techStacks: ['Illustrator', 'Photoshop', 'Zeplin'], intro: '완벽한 픽셀 매칭을 추구합니다.', createdAt: '2026-03-13T10:00:00.000Z' },
+    { id: 14, email: 'user_14@test.com', password: '1234', nickname: '일정관리자', phoneNumber: '01011110014', position: 'PM', techStacks: ['Notion', 'Discord', 'Jira'], intro: '팀의 효율성을 극대화합니다.', createdAt: '2026-03-14T10:00:00.000Z' },
+    { id: 15, email: 'user_15@test.com', password: '1234', nickname: '고데이터', phoneNumber: '01011110015', position: 'BE', techStacks: ['Go', 'gRPC', 'MySQL', 'Kafka'], intro: '고성능 동시성 처리를 전문으로 합니다.', createdAt: '2026-03-15T10:00:00.000Z' },
+    { id: 16, email: 'user_16@test.com', password: '1234', nickname: '앱개발자', phoneNumber: '01011110016', position: 'ETC', techStacks: ['React Native', 'Expo', 'Firebase'], intro: '모바일 앱 개발을 즐깁니다.', createdAt: '2026-03-16T10:00:00.000Z' },
+    { id: 17, email: 'user_17@test.com', password: '1234', nickname: '상태관리사', phoneNumber: '01011110017', position: 'FE', techStacks: ['Redux', 'Webpack', 'HTML/CSS'], intro: '복잡한 상태 구조를 깔끔하게 정리합니다.', createdAt: '2026-03-17T10:00:00.000Z' },
+    { id: 18, email: 'user_18@test.com', password: '1234', nickname: '네스트고수', phoneNumber: '01011110018', position: 'BE', techStacks: ['NestJS', 'TypeScript', 'TypeORM'], intro: 'Node.js의 구조적인 아키텍처를 선호합니다.', createdAt: '2026-03-18T10:00:00.000Z' },
+    { id: 19, email: 'user_19@test.com', password: '1234', nickname: 'UX러버', phoneNumber: '01011110019', position: 'DE', techStacks: ['Figma', 'Protopie', 'Adobe XD'], intro: '사용자 심리를 분석하는 디자이너입니다.', createdAt: '2026-03-19T10:00:00.000Z' },
+    { id: 20, email: 'user_20@test.com', password: '1234', nickname: '로드맵메이커', phoneNumber: '01011110020', position: 'PM', techStacks: ['Confluence', 'Slack', 'Jira'], intro: '장기적인 비전을 현실로 만듭니다.', createdAt: '2026-03-20T10:00:00.000Z' },
+    { id: 21, email: 'user_21@test.com', password: '1234', nickname: '스벨트뉴비', phoneNumber: '01011110021', position: 'FE', techStacks: ['Svelte', 'Vite', 'CSS Modules'], intro: '가벼운 런타임을 추구하는 개발자입니다.', createdAt: '2026-03-21T10:00:00.000Z' },
+    { id: 22, email: 'user_22@test.com', password: '1234', nickname: '데이터사이언', phoneNumber: '01011110022', position: 'ETC', techStacks: ['PyTorch', 'Pandas', 'NumPy', 'R'], intro: '데이터 속에서 가치를 찾아냅니다.', createdAt: '2026-03-22T10:00:00.000Z' },
+    { id: 23, email: 'user_23@test.com', password: '1234', nickname: '보안전문가', phoneNumber: '01011110023', position: 'BE', techStacks: ['C#', '.NET', 'Oracle', 'Linux'], intro: '철저한 보안 의식을 가진 서버 개발자입니다.', createdAt: '2026-03-23T10:00:00.000Z' },
+    { id: 24, email: 'user_24@test.com', password: '1234', nickname: '컬러리스트', phoneNumber: '01011110024', position: 'DE', techStacks: ['Photoshop', 'Illustrator', 'Figma'], intro: '색감의 조화를 중요시하는 디자이너입니다.', createdAt: '2026-03-24T10:00:00.000Z' },
+    { id: 25, email: 'user_25@test.com', password: '1234', nickname: '소통창구', phoneNumber: '01011110025', position: 'PM', techStacks: ['Slack', 'Notion', 'Jira'], intro: '원활한 팀 커뮤니케이션을 돕습니다.', createdAt: '2026-03-25T10:00:00.000Z' },
+    { id: 26, email: 'user_26@test.com', password: '1234', nickname: '웹소켓마스터', phoneNumber: '01011110026', position: 'BE', techStacks: ['Node.js', 'Socket.io', 'Redis'], intro: '실시간 데이터 처리에 강점이 있습니다.', createdAt: '2026-03-26T10:00:00.000Z' },
+    { id: 27, email: 'user_27@test.com', password: '1234', nickname: '모던웹', phoneNumber: '01011110027', position: 'FE', techStacks: ['React', 'Zustand', 'Styled Components'], intro: '최신 웹 트렌드를 빠르게 학습합니다.', createdAt: '2026-03-27T10:00:00.000Z' },
+    { id: 28, email: 'user_28@test.com', password: '1234', nickname: '게임개발', phoneNumber: '01011110028', position: 'ETC', techStacks: ['Unity', 'C#', 'Unreal Engine'], intro: '몰입감 있는 게임을 개발합니다.', createdAt: '2026-03-28T10:00:00.000Z' },
+    { id: 29, email: 'user_29@test.com', password: '1234', nickname: '인프라요정', phoneNumber: '01011110029', position: 'BE', techStacks: ['AWS', 'Nginx', 'Docker', 'Jenkins'], intro: '서버 환경 구축과 배포를 책임집니다.', createdAt: '2026-03-29T10:00:00.000Z' },
+    { id: 30, email: 'user_30@test.com', password: '1234', nickname: '최종보스', phoneNumber: '01011110030', position: 'ETC', techStacks: ['Python', 'PyTorch', 'Kubernetes'], intro: '복잡한 문제를 해결하는 아키텍트입니다.', createdAt: '2026-03-30T10:00:00.000Z' },
+  ].map(user => ({
+    ...user,
+    profileImg: `https://i.pravatar.cc/150?u=user${user.id}`
+  }));
+};
