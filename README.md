@@ -287,3 +287,93 @@ CREATE DATABASE mate_db;
 - **설명**: 모집이 완료되어 합격된 팀원들만 접근할 수 있는 내부 소통용 Private 공간입니다. 외부 유저의 접근을 막아 팀 전용 공지나 협업 링크 공유 등의 원활한 소통을 보조합니다.
 - *(추후 화면 캡처 및 GIF 추가 영역)*
 
+&nbsp;
+## 💻 개발자 (Developers)
+
+| <a href="https://github.com/Engineer-kim" target="_blank"><img width="120" height="120" src="https://github.com/Engineer-kim.png" /></a> | <a href="https://github.com/Hyeonseok93" target="_blank"><img width="120" height="120" src="https://github.com/Hyeonseok93.png" /></a> | <a href="https://github.com/hongjiho5148" target="_blank"><img width="120" height="120" src="https://github.com/hongjiho5148.png" /></a> | <a href="https://github.com/owhat02" target="_blank"><img width="120" height="120" src="https://github.com/owhat02.png" /></a> | <a href="https://github.com/seoyeon020" target="_blank"><img width="120" height="120" src="https://github.com/seoyeon020.png" /></a> | <a href="https://github.com/siyeon04" target="_blank"><img width="120" height="120" src="https://github.com/siyeon04.png" /></a> |
+|:-------------:|:------:|:------:|:------:|:------:|:------:|
+| [홍지호컬 MariaDB에 접속하여 프로젝트용 스키마를 생성합니다.
+
+```sql
+CREATE DATABASE mate_db;
+```
+
+### 2. Backend 실행
+
+1. `MATE-backend` 디렉토리로 이동합니다.
+   ```bash
+   cd MATE-backend
+   ```
+2. `src/main/resources/application-dev.properties` 파일을 생성하거나 알맞게 수정합니다.
+   ```properties
+   spring.datasource.url=jdbc:mariadb://localhost:3306/mate_db
+   spring.datasource.username=사용자이름
+   spring.datasource.password=비밀번호
+   jwt.secret=최소_32글자_이상의_임의의_시크릿_키
+   # Cloudinary 계정이 있다면 추가 설정
+   cloudinary.cloud-name=your_cloud_name
+   cloudinary.api-key=your_api_key
+   cloudinary.api-secret=your_api_secret
+   ```
+3. 서버를 구동합니다.
+
+   ```bash
+   # Windows
+   mvnw.cmd spring-boot:run
+
+   # Linux/macOS
+   ./mvnw spring-boot:run
+   ```
+
+   - 백엔드 서버는 `http://localhost:8080`에서 구동됩니다.
+
+### 3. Frontend 실행
+
+1. `MATE-frontend` 디렉토리로 이동합니다.
+   ```bash
+   cd MATE-frontend
+   ```
+2. `.env.development` 환경 변수를 설정합니다.
+   ```env
+   VITE_API_BASE_URL=http://localhost:8080/api
+   ```
+3. 패키지를 설치하고 개발 서버를 시작합니다.
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+   - 프론트엔드 웹 앱은 `http://localhost:5173`에서 확인할 수 있습니다.
+
+---
+
+## 🖥️ 주요 화면 가이드 (Features Walkthrough)
+
+### 1. 메인 페이지 (Main Discovery)
+- **설명**: 최신 프로젝트 및 스터디 모집글을 한눈에 탐색할 수 있는 허브 화면입니다. 카테고리(프로젝트/스터디), 기술 스택 필터, 키워드 검색을 조합하여 원하는 모집공고를 신속하게 필터링할 수 있습니다.
+- *(추후 화면 캡처 및 GIF 추가 영역)*
+
+### 2. 모집공고 상세 및 지원 (Project Detail & Apply)
+- **설명**: 프로젝트의 진행 기간, 온/오프라인 여부, 모집 직군(프론트엔드/백엔드/기획 등), 요구 스택 등 상세 구인 조건을 보여줍니다. 
+- **지원 프로세스**: 하단의 '지원하기' 버튼을 눌러 지원 동기를 입력하면 즉시 지원서가 제출됩니다.
+- *(추후 화면 캡처 및 GIF 추가 영역)*
+
+### 3. 마이페이지 - 모집 관리 (Recruitment Dashboard)
+- **설명**: 자신이 생성한 모집글에 지원한 유저들의 프로필과 포지션, 지원 동기를 확인하는 방장 전용 대시보드입니다.
+- **매칭 매커니즘**: 각 지원자 카드 우측의 '수락' 혹은 '거절' 버튼을 눌러 직관적으로 팀원을 빌딩할 수 있습니다.
+- *(추후 화면 캡처 및 GIF 추가 영역)*
+
+### 4. 마이페이지 - 지원 현황 (My Applications)
+- **설명**: 내가 참여를 신청한 프로젝트/스터디 목록과 각 매칭 상태(승인 대기, 수락됨, 거절됨)를 실시간으로 확인하는 개인 대시보드입니다.
+- *(추후 화면 캡처 및 GIF 추가 영역)*
+
+### 5. 팀 전용 협업 게시판 (Private Board)
+- **설명**: 모집이 완료되어 합격된 팀원들만 접근할 수 있는 내부 소통용 Private 공간입니다. 외부 유저의 접근을 막아 팀 전용 공지나 협업 링크 공유 등의 원활한 소통을 보조합니다.
+- *(추후 화면 캡처 및 GIF 추가 영역)*
+
+&nbsp;
+## 💻 개발자 (Developers)
+
+| <a href="https://github.com/hongjiho5148" target="_blank"><img width="120" height="120" src="https://github.com/hongjiho5148.png" /></a> | <a href="https://github.com/Hyeonseok93" target="_blank"><img width="120" height="120" src="https://github.com/Hyeonseok93.png" /></a> | <a href="https://github.com/hjyouns" target="_blank"><img width="120" height="120" src="https://github.com/hjyouns.png" /></a> | <a href="https://github.com/Jangdochi" target="_blank"><img width="120" height="120" src="https://github.com/Jangdochi.png" /></a> | <a href="https://github.com/nirey-l" target="_blank"><img width="120" height="120" src="https://github.com/nirey-l.png" /></a> | <a href="https://github.com/pjcosmos" target="_blank"><img width="120" height="120" src="https://github.com/pjcosmos.png" /></a> |
+|:-------------:|:------:|:------:|:------:|:------:|:------:|
+| [홍지호(팀장)](https://github.com/hongjiho5148) | [김현석](https://github.com/Hyeonseok93) | [윤형진](https://github.com/hjyouns) | [장헌준](https://github.com/Jangdochi) | [이예린](https://github.com/nirey-l) | [박진아](https://github.com/pjcosmos) |
