@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>게시물 관리</title>
+
+    <style>
+        body { margin:0; font-family:Arial; background:#f1f5f9; }
+
+        /* 헤더 */
+        .header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#1e293b; color:white; }
+        .left { display:flex; gap:20px; align-items:center; }
+        .title { font-weight:bold; font-size:18px; }
+        .header-right { display:flex; gap:10px; align-items:center; }
+        .search-box { display:flex; align-items:center; gap:5px; }
+        .search-box input { padding:6px 10px; border-radius:5px; border:none; }
+        .search-box button { padding:6px 10px; border:none; border-radius:5px; background:#6366f1; color:white; cursor:pointer; }
+
+        /* 레이아웃 */
+        .container { display:flex; }
+        .sidebar { width:220px; background:#0f172a; color:white; padding:20px; height:100vh; }
+        .sidebar a { display:block; padding:10px; color:white; text-decoration:none; }
+        .sidebar a:hover { background:#1e293b; }
+        .main { flex:1; padding:20px; }
+
+        /* 카드 */
+        .row { display:flex; gap:20px; }
+        .card { background:white; padding:15px; border-radius:10px; flex:1; text-align:center; }
+
+        table { width:100%; border-collapse:collapse; }
+        th, td { border-bottom:1px solid #ddd; padding:8px; text-align:center; }
+
+        .btn-delete { background:red; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; }
+
+        .pagination { text-align:center; margin-top:10px; }
+        .pagination a { border:1px solid #ddd; background:white; padding:5px 10px; margin:2px; border-radius:5px; text-decoration:none; color:black;}
+        .pagination .active { background:#6366f1; color:white; }
+    </style>
+</head>
+
+<body>
+
+<!-- 🔥 헤더 -->
+<div class="header">
+    <div class="left">
+        <div>mate ADMIN</div>
+        <div class="title">게시물 관리</div>
+    </div>
+
+    <div class="header-right">
+        <form class="search-box" action="/admin/search" method="get">
+            <input type="hidden" name="redirectPage" value="projects"/>
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="게시글 검색...">
+            <button type="submit">🔍</button>
+        </form>
+        <div>📋</div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- 🔥 사이드바 -->
+    <div class="sidebar">
+        <div>👤 관리자</div>
+        <div>Super Admin</div>
+
+        <a href="/admin/dashboard">📊 대시보드</a>
+        <a href="/admin/users">👥 회원관리</a>
+        <a href="/admin/projects">📋 게시글관리</a>
+        <a href="/admin/logs">📜 활동로그</a>
+
+        <div style="margin-top:50px;">
+            <form action="/admin/logout" method="post">
+                <button type="submit" style="background:#6366f1; color:white; border:none; padding:5px 10px; border-radius:5px;">
+                    🚪 로그아웃
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 🔥 메인 -->
+    <div class="main">
+
+        <div class="row">
+
+            <div class="card">
+                <h3>게시글 목록</h3>
+
+                <table>
+                    <tr>
+                        <th>제목</th>
+                        <th>작성자</th>
+                        <th>등록일</th>
+                        <th>신청자</th>
+                        <th>관리</th>
+                    </tr>
+
+                    <tr th:each="p : ${projects.content}">
+                        <td th:text="${p.title}"></td>
+                        <td th:text="${p.ownerNickname != null ? p.ownerNickname : '알 수 없음'}"></td>
+                        <td th:text="${p.createdAt}"></td>
+                        <td th:text="${p.currentCount} + '명'"></td>
+                        <td>
+                            <button class="btn-project-detail" th:attr="data-id=${p.id}">상세</button>
+
+                            <!-- 삭제 -->
+                            <form th:if="${!p.deleted}"
+                                  th:action="@{/admin/projects/delete/{id}(id=${p.id})}"
+                                  method="post"
+                                  style="display:inline;"
+                                  onsubmit="return confirm('삭제하시겠습니까?');">
+
+                                <input type="hidden" name="projectPage" th:value="${projects.number}" />
+                                <input type="hidden" name="redirectPage" value="projects"/>
+                                <button type="submit" class="btn-delete">삭제</button>
+                            </form>
+
+                            <!-- 복구 -->
+                            <form th:if="${p.deleted}"
+                                  th:action="@{/admin/projects/restore/{id}(id=${p.id})}"
+                                  method="post"
+                                  style="display:inline;"
+                                  onsubmit="return confirm('복구하시겠습니까?');">
+
+                                <input type="hidden" name="projectPage" th:value="${projects.number}" />
+                                <input type="hidden" name="redirectPage" value="projects"/>
+                                <button type="submit" style="background:green; color:white; border:none; padding:5px 10px; border-radius:5px;">
+                                    복구
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- 🔥 페이징 -->
+                <div class="pagination">
+                    <a th:href="@{/admin/projects(projectPage=0)}">&lt;&lt;</a>
+
+                    <a th:if="${projects.number > 0}"
+                       th:href="@{/admin/projects(projectPage=${projects.number-1})}">&lt;</a>
+
+                    <span th:each="i : ${#numbers.sequence(0, projects.totalPages-1)}"
+                          th:if="${i >= projects.number-2 and i <= projects.number+2}">
+                        <a th:href="@{/admin/projects(projectPage=${i})}"
+                           th:text="${i+1}"
+                           th:classappend="${i==projects.number} ? 'active'"></a>
+                    </span>
+
+                    <a th:if="${projects.number < projects.totalPages-1}"
+                       th:href="@{/admin/projects(projectPage=${projects.number+1})}">&gt;</a>
+
+                    <a th:href="@{/admin/projects(projectPage=${projects.totalPages-1})}">&gt;&gt;</a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- 🔥 프로젝트 상세 모달 (그대로 유지) -->
+<div id="projectDetailModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+background:white; padding:20px; border-radius:10px; z-index:1000; width:400px;">
+    <h3>프로젝트 상세 정보</h3>
+    <div id="projectModalContent"></div>
+    <button onclick="closeProjectModal()">닫기</button>
+</div>
+
+<div id="projectModalOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background:rgba(0,0,0,0.5);" onclick="closeProjectModal()"></div>
+
+<script>
+    document.addEventListener('click', function(e) {
+
+        if (e.target.classList.contains('btn-project-detail')) {
+            fetch(`/admin/projects/${e.target.dataset.id}`)
+                .then(res => res.json())
+                .then(p => {
+                    document.getElementById('projectModalContent').innerHTML = `
+                        <p>제목: ${p.title}</p>
+                        <p>작성자: ${p.ownerNickname || '알 수 없음'}</p>
+                        <p>카테고리: ${p.category}</p>
+                        <p>모집 인원: ${p.recruitCount}명</p>
+                        <p>신청자 수: ${p.currentCount}명</p>
+                        <p>내용: ${p.content}</p>
+                        <p>생성일: ${p.createdAt}</p>
+                        <p>마감일: ${p.endDate}</p>
+                    `;
+                    openProjectModal();
+                });
+        }
+
+    });
+
+    function openProjectModal() {
+        document.getElementById('projectDetailModal').style.display = 'block';
+        document.getElementById('projectModalOverlay').style.display = 'block';
+    }
+
+    function closeProjectModal() {
+        document.getElementById('projectDetailModal').style.display = 'none';
+        document.getElementById('projectModalOverlay').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
