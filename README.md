@@ -287,12 +287,7 @@ CREATE DATABASE mate_db;
 - **설명**: 모집이 완료되어 합격된 팀원들만 접근할 수 있는 내부 소통용 Private 공간입니다. 외부 유저의 접근을 막아 팀 전용 공지나 협업 링크 공유 등의 원활한 소통을 보조합니다.
 - *(추후 화면 캡처 및 GIF 추가 영역)*
 
-&nbsp;
-## 💻 개발자 (Developers)
-
-| <a href="https://github.com/Engineer-kim" target="_blank"><img width="120" height="120" src="https://github.com/Engineer-kim.png" /></a> | <a href="https://github.com/Hyeonseok93" target="_blank"><img width="120" height="120" src="https://github.com/Hyeonseok93.png" /></a> | <a href="https://github.com/hongjiho5148" target="_blank"><img width="120" height="120" src="https://github.com/hongjiho5148.png" /></a> | <a href="https://github.com/owhat02" target="_blank"><img width="120" height="120" src="https://github.com/owhat02.png" /></a> | <a href="https://github.com/seoyeon020" target="_blank"><img width="120" height="120" src="https://github.com/seoyeon020.png" /></a> | <a href="https://github.com/siyeon04" target="_blank"><img width="120" height="120" src="https://github.com/siyeon04.png" /></a> |
-|:-------------:|:------:|:------:|:------:|:------:|:------:|
-| [홍지호컬 MariaDB에 접속하여 프로젝트용 스키마를 생성합니다.
+MariaDB에 접속하여 프로젝트용 스키마를 생성합니다.
 
 ```sql
 CREATE DATABASE mate_db;
