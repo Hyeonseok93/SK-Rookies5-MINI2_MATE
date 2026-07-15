@@ -19,6 +19,14 @@
 
 ---
 
+## 💻 Developers
+
+| <a href="https://github.com/hongjiho5148" target="_blank"><img width="120" height="120" src="https://github.com/hongjiho5148.png" /></a> | <a href="https://github.com/Hyeonseok93" target="_blank"><img width="120" height="120" src="https://github.com/Hyeonseok93.png" /></a> | <a href="https://github.com/hjyouns" target="_blank"><img width="120" height="120" src="https://github.com/hjyouns.png" /></a> | <a href="https://github.com/Jangdochi" target="_blank"><img width="120" height="120" src="https://github.com/Jangdochi.png" /></a> | <a href="https://github.com/nirey-l" target="_blank"><img width="120" height="120" src="https://github.com/nirey-l.png" /></a> | <a href="https://github.com/pjcosmos" target="_blank"><img width="120" height="120" src="https://github.com/pjcosmos.png" /></a> |
+|:-------------:|:------:|:------:|:------:|:------:|:------:|
+| [홍지호(팀장)](https://github.com/hongjiho5148) | [김현석](https://github.com/Hyeonseok93) | [윤형진](https://github.com/hjyouns) | [장헌준](https://github.com/Jangdochi) | [이예린](https://github.com/nirey-l) | [박진아](https://github.com/pjcosmos) |
+
+---
+
 ## 🚀 프로젝트 개요 (Overview)
 
 **MATE**는 개발자, 디자이너, 기획자가 모여 사이드 프로젝트 팀원을 모집하고 스터디 그룹을 개설하여 협업할 수 있도록 돕는 매칭 웹 애플리케이션입니다.
@@ -373,11 +381,3 @@ npm run dev      # http://localhost:5173
 npm run build    # dist/ 생성
 ```
 
----
-
-&nbsp;
-## 💻 개발자 (Developers)
-
-| <a href="https://github.com/hongjiho5148" target="_blank"><img width="120" height="120" src="https://github.com/hongjiho5148.png" /></a> | <a href="https://github.com/Hyeonseok93" target="_blank"><img width="120" height="120" src="https://github.com/Hyeonseok93.png" /></a> | <a href="https://github.com/hjyouns" target="_blank"><img width="120" height="120" src="https://github.com/hjyouns.png" /></a> | <a href="https://github.com/Jangdochi" target="_blank"><img width="120" height="120" src="https://github.com/Jangdochi.png" /></a> | <a href="https://github.com/nirey-l" target="_blank"><img width="120" height="120" src="https://github.com/nirey-l.png" /></a> | <a href="https://github.com/pjcosmos" target="_blank"><img width="120" height="120" src="https://github.com/pjcosmos.png" /></a> |
-|:-------------:|:------:|:------:|:------:|:------:|:------:|
-| [홍지호(팀장)](https://github.com/hongjiho5148) | [김현석](https://github.com/Hyeonseok93) | [윤형진](https://github.com/hjyouns) | [장헌준](https://github.com/Jangdochi) | [이예린](https://github.com/nirey-l) | [박진아](https://github.com/pjcosmos) |
