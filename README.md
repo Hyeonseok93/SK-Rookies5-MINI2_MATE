@@ -28,15 +28,99 @@
   <p align="center">
     <strong>"원하는 스터디와 프로젝트, 최적의 팀원을 찾는 가장 스마트한 방법"</strong>
   </p>
+</div>
 
-  <p align="center">
-    <img src="https://img.shields.io/badge/Spring_Boot-3.5.x-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot" />
-    <img src="https://img.shields.io/badge/React-19.0.x-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
-    <img src="https://img.shields.io/badge/Java-17-007396?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java" />
-    <img src="https://img.shields.io/badge/MariaDB-10.x-003545?style=for-the-badge&logo=mariadb&logoColor=white" alt="MariaDB" />
-    <img src="https://img.shields.io/badge/JWT-Authentication-black?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT" />
-    <img src="https://img.shields.io/badge/Zustand-State_Management-4433ff?style=for-the-badge" alt="Zustand" />
-  </p>
+---
+
+## 🛠 Built With
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/dark/springboot.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme/badges/light/springboot.png">
+    <img src="assets/readme/badges/dark/springboot.png" alt="Spring Boot" height="28" />
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/dark/react.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme/badges/light/react.png">
+    <img src="assets/readme/badges/dark/react.png" alt="React" height="28" />
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/dark/java.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme/badges/light/java.png">
+    <img src="assets/readme/badges/dark/java.png" alt="Java" height="28" />
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/dark/mariadb.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme/badges/light/mariadb.png">
+    <img src="assets/readme/badges/dark/mariadb.png" alt="MariaDB" height="28" />
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/dark/jwt.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme/badges/light/jwt.png">
+    <img src="assets/readme/badges/dark/jwt.png" alt="JWT" height="28" />
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/dark/zustand.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme/badges/light/zustand.png">
+    <img src="assets/readme/badges/dark/zustand.png" alt="Zustand" height="28" />
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/dark/mui.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme/badges/light/mui.png">
+    <img src="assets/readme/badges/dark/mui.png" alt="MUI" height="28" />
+  </picture>
+</p>
+
+<div align="center">
+
+<table align="center">
+  <thead>
+    <tr>
+      <th align="left">구분</th>
+      <th align="left">기술</th>
+      <th align="left">역할</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left"><strong>Frontend</strong></td>
+      <td align="left">React 19, Vite, MUI</td>
+      <td align="left">SPA UI, React Router, 디자인 시스템</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>State &amp; API</strong></td>
+      <td align="left">Zustand, Axios</td>
+      <td align="left">전역 상태, JWT 인터셉터·Access Token 재발급</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Backend</strong></td>
+      <td align="left">Spring Boot 3.5, Java 17</td>
+      <td align="left">REST API, 도메인 서비스, Maven</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Database</strong></td>
+      <td align="left">MariaDB, Flyway, JPA</td>
+      <td align="left">영속화·스키마 마이그레이션</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Security</strong></td>
+      <td align="left">Spring Security, JWT</td>
+      <td align="left">Access/Refresh 토큰, BCrypt</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Media</strong></td>
+      <td align="left">Cloudinary</td>
+      <td align="left">프로필 이미지 원격 업로드</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Dev Mock</strong></td>
+      <td align="left">MSW</td>
+      <td align="left">프론트 독립 API 모킹</td>
+    </tr>
+  </tbody>
+</table>
+
 </div>
 
 ---
@@ -68,30 +152,6 @@
 
 - **대시보드**: 전체 가입자 수, 진행 중인 프로젝트 수 등 핵심 지표 시각화.
 - **데이터 복구**: 실수로 삭제되거나 보관 처리된 회원 정보 및 리소스를 복구하는 백 오피스 툴.
-
----
-
-## 🛠 기술 스택 (Tech Stack)
-
-### Front-End
-
-- **Framework & Runtime**: React 19 (Vite 기반)
-- **Routing**: React Router Dom v7
-- **State Management**: Zustand (Auth, Post, UI Global State)
-- **UI & Styling**: Material-UI (MUI v6), @emotion/react, @emotion/styled
-- **Network**: Axios (Interceptor를 활용한 토큰 재발급 자동화)
-- **Development Tooling**: Mock Service Worker (MSW)를 사용한 독립적 API 모킹 환경
-
-### Back-End
-
-- **Language & JDK**: Java 17
-- **Framework**: Spring Boot 3.5.x
-- **Build Tool**: Maven
-- **Database & JPA**: MariaDB, Spring Data JPA (Hibernate)
-- **Security**: Spring Security, JWT (JSON Web Token), BCrypt Encryption
-- **File Storage**: Cloudinary (사용자 프로필 이미지 원격 업로드 및 저장)
-- **Monitoring & Metrics**: Spring Boot Actuator, Spring Boot Admin
-- **Utility**: Lombok, Custom Mapper (DTO-Entity 간 매퍼 클래스 구현)
 
 ---
 
