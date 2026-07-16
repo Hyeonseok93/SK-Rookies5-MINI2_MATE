@@ -13,12 +13,11 @@
 
 ## 🚀 Overview
 
-**MATE**는 개발자, 디자이너, 기획자가 모여 사이드 프로젝트 팀원을 모집하고 스터디 그룹을 개설하여 협업할 수 있도록 돕는 매칭 웹 애플리케이션입니다.
-복잡하고 번거로운 구인 과정을 최소화하고, 기술 스택과 포지션을 기반으로 나와 가장 잘 맞는 'MATE'를 찾을 수 있도록 돕습니다.
+사이드 프로젝트나 스터디 팀원을 찾으려면 여러 커뮤니티에 모집글을 올리고, 지원자 정보와 합류 현황을 따로 관리해야 합니다. **MATE**는 개발자·디자이너·기획자가 모집부터 지원, 팀 확정과 협업까지 **한곳에서 이어 갈 수 있도록** 만든 매칭 플랫폼입니다.
 
-- **프로젝트 모집 & 매칭**: 프로젝트 개설자는 상세 역할군과 기술 스택을 지정하여 공고를 작성하고, 지원자의 프로필을 검토하여 합류 여부를 결정합니다.
-- **스터디 그룹 형성**: 관심 분야가 같은 사람들끼리 스터디 모집글을 올려 지식을 공유하고 학습할 수 있습니다.
-- **실시간 관리**: 마이페이지를 통해 지원 현황과 모집자 입장에서의 매칭 관리를 실시간으로 처리합니다.
+React에서 프로젝트·스터디, 기술 스택, 키워드를 기준으로 모집글을 탐색하고, Spring Boot REST API가 **회원·모집글·지원서·프로젝트 멤버·팀 게시판**을 도메인별로 관리합니다. Spring Security와 JWT를 적용해 로그인 세션과 권한이 필요한 기능도 함께 처리합니다.
+
+**모집글 작성 → 지원 → 모집자의 수락·거절 → 멤버 확정 → 팀 전용 게시판**으로 이어지는 흐름 위에 프로필, 댓글, 마이페이지 지원·모집 관리, 관리자 대시보드를 붙여 둔 팀 매칭 서비스입니다.
 
 ---
 
@@ -61,14 +60,19 @@
     <img src="assets/readme/badges/dark/jwt.png" alt="JWT" height="28" />
   </picture>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/dark/zustand.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/readme/badges/light/zustand.png">
-    <img src="assets/readme/badges/dark/zustand.png" alt="Zustand" height="28" />
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/dark/vite.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme/badges/light/vite.png">
+    <img src="assets/readme/badges/dark/vite.png" alt="Vite" height="28" />
   </picture>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/dark/mui.png">
     <source media="(prefers-color-scheme: light)" srcset="assets/readme/badges/light/mui.png">
     <img src="assets/readme/badges/dark/mui.png" alt="MUI" height="28" />
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/dark/zustand.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme/badges/light/zustand.png">
+    <img src="assets/readme/badges/dark/zustand.png" alt="Zustand" height="28" />
   </picture>
 </p>
 
@@ -84,39 +88,74 @@
   </thead>
   <tbody>
     <tr>
-      <td align="left"><strong>Frontend</strong></td>
-      <td align="left">React 19, Vite, MUI</td>
-      <td align="left">SPA UI, React Router, 디자인 시스템</td>
+      <td align="left"><strong>Frontend Core</strong></td>
+      <td align="left">JavaScript, React/React DOM 19.2.4, Vite 8.0.3</td>
+      <td align="left">컴포넌트 기반 SPA 렌더링·개발 서버·프로덕션 번들</td>
     </tr>
     <tr>
-      <td align="left"><strong>State &amp; API</strong></td>
-      <td align="left">Zustand, Axios</td>
-      <td align="left">전역 상태, JWT 인터셉터·Access Token 재발급</td>
+      <td align="left"><strong>Routing &amp; UI</strong></td>
+      <td align="left">React Router DOM 7.13.2, MUI/MUI Icons 7.3.9, Emotion 11.14</td>
+      <td align="left">페이지 라우팅·보호 경로·공통 컴포넌트·테마와 CSS-in-JS</td>
     </tr>
     <tr>
-      <td align="left"><strong>Backend</strong></td>
-      <td align="left">Spring Boot 3.5, Java 17</td>
-      <td align="left">REST API, 도메인 서비스, Maven</td>
+      <td align="left"><strong>State &amp; HTTP</strong></td>
+      <td align="left">Zustand 5.0.12, Axios 1.14.0</td>
+      <td align="left">인증·게시글 전역 상태, API 모듈, JWT 인터셉터와 토큰 재발급</td>
     </tr>
     <tr>
-      <td align="left"><strong>Database</strong></td>
-      <td align="left">MariaDB, Flyway, JPA</td>
-      <td align="left">영속화·스키마 마이그레이션</td>
+      <td align="left"><strong>Frontend Dev &amp; Quality</strong></td>
+      <td align="left">MSW 2.12.14, ESLint 9.39.4, React Hooks/Refresh Plugins</td>
+      <td align="left">API 모킹 레이어(현재 런타임 비활성), 정적 분석·Hooks 규칙 검사</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Backend Core</strong></td>
+      <td align="left">Java 17, Spring Boot 3.5.13, Spring Web MVC, Bean Validation</td>
+      <td align="left">REST API·서비스 계층·요청값 검증·전역 예외 처리</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Persistence</strong></td>
+      <td align="left">Spring Data JPA, Hibernate ORM 6.6.45, MariaDB JDBC 3.5.7</td>
+      <td align="left">엔티티 매핑·리포지토리·도메인 관계와 운영 데이터 영속화</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Database Support</strong></td>
+      <td align="left">H2 2.3.232, Flyway 11.7.2</td>
+      <td align="left">테스트용 인메모리 DB; Flyway는 의존성만 있으며 개발 환경에서 비활성·마이그레이션 파일 없음</td>
     </tr>
     <tr>
       <td align="left"><strong>Security</strong></td>
-      <td align="left">Spring Security, JWT</td>
-      <td align="left">Access/Refresh 토큰, BCrypt</td>
+      <td align="left">Spring Security, JJWT 0.12.7, BCrypt</td>
+      <td align="left">Access/Refresh Token 발급·검증, 인증 필터, 비밀번호 해싱, 권한 제어</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Admin View</strong></td>
+      <td align="left">Thymeleaf, Spring Security Form Login</td>
+      <td align="left">관리자 로그인·대시보드·회원·프로젝트·감사 로그 서버 렌더링</td>
     </tr>
     <tr>
       <td align="left"><strong>Media</strong></td>
-      <td align="left">Cloudinary</td>
-      <td align="left">프로필 이미지 원격 업로드</td>
+      <td align="left">Cloudinary Java SDK 1.36</td>
+      <td align="left">프로필 이미지 업로드·CDN URL 관리, 로컬 정적 업로드 경로 지원</td>
     </tr>
     <tr>
-      <td align="left"><strong>Dev Mock</strong></td>
-      <td align="left">MSW</td>
-      <td align="left">프론트 독립 API 모킹</td>
+      <td align="left"><strong>Backend Utilities</strong></td>
+      <td align="left">Jackson, Lombok, Servlet Multipart</td>
+      <td align="left">JSON 직렬화·보일러플레이트 절감·멀티파트 파일 처리</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Build &amp; Development</strong></td>
+      <td align="left">Maven Wrapper 3.9.14, Spring Boot DevTools</td>
+      <td align="left">백엔드 빌드·의존성 관리·로컬 개발 편의 기능</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Monitoring Dependencies</strong></td>
+      <td align="left">Spring Boot Actuator, Spring Boot Admin Client 3.5.8</td>
+      <td align="left">의존성만 선언된 상태이며 관리 엔드포인트·Admin 서버 연결 설정은 없음</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Backend Test</strong></td>
+      <td align="left">Spring Boot Test, JUnit 5, AssertJ, H2</td>
+      <td align="left">애플리케이션 컨텍스트와 JPA 엔티티·DTO 매핑 검증</td>
     </tr>
   </tbody>
 </table>
@@ -288,17 +327,24 @@ CREATE DATABASE mate_db;
    ```bash
    cd MATE-backend
    ```
-2. `src/main/resources/application-dev.properties` 파일을 생성하거나 알맞게 수정합니다.
-   ```properties
-   spring.datasource.url=jdbc:mariadb://localhost:3306/mate_db
-   spring.datasource.username=사용자이름
-   spring.datasource.password=비밀번호
-   jwt.secret=최소_32글자_이상의_임의의_시크릿_키
-   # Cloudinary 계정이 있다면 추가 설정
-   cloudinary.cloud-name=your_cloud_name
-   cloudinary.api-key=your_api_key
-   cloudinary.api-secret=your_api_secret
+2. 예시 파일을 복사해 `.env`를 만들고 로컬 환경에 맞게 값을 설정합니다.
+   ```bash
+   # Windows
+   copy .env.example .env
+
+   # macOS / Linux
+   cp .env.example .env
    ```
+   ```env
+   DB_URL=jdbc:mariadb://localhost:3306/mate_db
+   DB_USER=사용자이름
+   DB_PASSWORD=비밀번호
+   JWT_SECRET=최소_32글자_이상의_임의의_시크릿_키
+   CLOUDINARY_CLOUD_NAME=your_cloud_name
+   CLOUDINARY_API_KEY=your_api_key
+   CLOUDINARY_API_SECRET=your_api_secret
+   ```
+   `.env`는 Git에서 제외되며 실제 인증정보를 커밋하지 않습니다.
 3. 서버를 구동합니다.
 
    ```bash
