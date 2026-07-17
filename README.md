@@ -343,28 +343,36 @@ SK-Rookies5-MINI2_MATE/
 
 ```mermaid
 flowchart TB
+  classDef client fill:#334155,stroke:#94A3B8,color:#F8FAFC,stroke-width:1.5px
+  classDef fe fill:#5B21B6,stroke:#C4B5FD,color:#F5F3FF,stroke-width:1.5px
+  classDef be fill:#3730A3,stroke:#A5B4FC,color:#EEF2FF,stroke-width:1.5px
+  classDef data fill:#1E293B,stroke:#94A3B8,color:#F8FAFC,stroke-width:1.5px
+
   subgraph Client
-    Browser
+    Browser:::client
   end
 
   subgraph Frontend
-    React["React + MUI"]
-    Zustand
-    Axios["Axios · JWT Silent Refresh"]
-    MSW["MSW · local mock"]
+    direction LR
+    React["React + MUI"]:::fe
+    Zustand:::fe
+    Axios["Axios · JWT Silent Refresh"]:::fe
+    MSW["MSW · local mock"]:::fe
   end
 
   subgraph Backend["Backend · Spring Boot"]
-    Controller
-    Security["Security / JWT"]
-    Service
-    Mapper
-    Repository
+    direction LR
+    Controller:::be
+    Security["Security / JWT"]:::be
+    Service:::be
+    Mapper:::be
+    Repository:::be
   end
 
   subgraph Data["Data & External"]
-    MariaDB
-    Cloudinary["Cloudinary CDN"]
+    direction LR
+    MariaDB:::data
+    Cloudinary["Cloudinary CDN"]:::data
   end
 
   Browser --> React
