@@ -1,40 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300" role="img" aria-label="MATE system architecture">
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-label="MATE layered system architecture">
   <defs>
-    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M0 1 L9 5 L0 9 z" fill="#94A3B8"/>
+    <marker id="down" viewBox="0 0 10 10" refX="5" refY="8" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0 L5 9 L10 0 z" fill="#94A3B8"/>
     </marker>
   </defs>
 
-  <rect x="24" y="72" width="150" height="96" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
-  <text x="99" y="114" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#0F172A">Browser</text>
-  <text x="99" y="138" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="12" fill="#64748B">User Client</text>
+  <!-- Layer 1: Client -->
+  <rect x="40" y="24" width="820" height="88" rx="14" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="60" y="48" font-family="Inter, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#64748B" letter-spacing="0.04em">CLIENT</text>
+  <rect x="60" y="60" width="160" height="36" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/>
+  <text x="140" y="83" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#0F172A">Browser</text>
 
-  <rect x="220" y="60" width="188" height="120" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
-  <text x="314" y="98" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#0F172A">React + MUI</text>
-  <text x="314" y="122" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="12" fill="#64748B">Zustand · Axios</text>
-  <text x="314" y="144" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="12" fill="#64748B">JWT Silent Refresh</text>
+  <line x1="450" y1="112" x2="450" y2="136" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#down)"/>
+  <text x="466" y="130" font-family="Inter, Segoe UI, sans-serif" font-size="11" fill="#64748B">HTTPS</text>
 
-  <rect x="454" y="60" width="188" height="120" rx="12" fill="#FFFFFF" stroke="#8B5CF6" stroke-width="1.5"/>
-  <text x="548" y="98" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#5B21B6">Spring Boot</text>
-  <text x="548" y="122" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="12" fill="#64748B">Security · Service</text>
-  <text x="548" y="144" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="12" fill="#64748B">Mapper · JPA</text>
+  <!-- Layer 2: Frontend -->
+  <rect x="40" y="140" width="820" height="100" rx="14" fill="#F5F3FF" stroke="#E9E5FF" stroke-width="1"/>
+  <text x="60" y="164" font-family="Inter, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#7C3AED" letter-spacing="0.04em">FRONTEND</text>
+  <rect x="60" y="178" width="150" height="40" rx="8" fill="#FFFFFF" stroke="#C4B5FD"/>
+  <text x="135" y="203" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#0F172A">React + MUI</text>
+  <rect x="230" y="178" width="130" height="40" rx="8" fill="#FFFFFF" stroke="#C4B5FD"/>
+  <text x="295" y="203" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#0F172A">Zustand</text>
+  <rect x="380" y="178" width="220" height="40" rx="8" fill="#FFFFFF" stroke="#C4B5FD"/>
+  <text x="490" y="203" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#0F172A">Axios Interceptor (JWT)</text>
+  <rect x="620" y="178" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#C4B5FD"/>
+  <text x="720" y="203" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#0F172A">MSW (local mock)</text>
 
-  <rect x="454" y="212" width="188" height="64" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
-  <text x="548" y="240" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="14" font-weight="700" fill="#0F172A">MariaDB</text>
-  <text x="548" y="260" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="12" fill="#64748B">Domain Data</text>
+  <line x1="450" y1="240" x2="450" y2="264" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#down)"/>
+  <text x="466" y="258" font-family="Inter, Segoe UI, sans-serif" font-size="11" fill="#64748B">REST / Bearer JWT</text>
 
-  <rect x="698" y="72" width="150" height="96" rx="12" fill="#FFFFFF" stroke="#8B5CF6" stroke-width="1.5"/>
-  <text x="773" y="114" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="14" font-weight="700" fill="#5B21B6">Cloudinary</text>
-  <text x="773" y="138" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="12" fill="#64748B">CDN Image</text>
+  <!-- Layer 3: Backend -->
+  <rect x="40" y="268" width="820" height="100" rx="14" fill="#EEF2FF" stroke="#E0E7FF" stroke-width="1"/>
+  <text x="60" y="292" font-family="Inter, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#4F46E5" letter-spacing="0.04em">BACKEND</text>
+  <rect x="60" y="306" width="140" height="40" rx="8" fill="#FFFFFF" stroke="#A5B4FC"/>
+  <text x="130" y="331" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#0F172A">Controller</text>
+  <rect x="220" y="306" width="160" height="40" rx="8" fill="#FFFFFF" stroke="#A5B4FC"/>
+  <text x="300" y="331" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#0F172A">Security / JWT</text>
+  <rect x="400" y="306" width="130" height="40" rx="8" fill="#FFFFFF" stroke="#A5B4FC"/>
+  <text x="465" y="331" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#0F172A">Service</text>
+  <rect x="550" y="306" width="130" height="40" rx="8" fill="#FFFFFF" stroke="#A5B4FC"/>
+  <text x="615" y="331" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#0F172A">Mapper</text>
+  <rect x="700" y="306" width="140" height="40" rx="8" fill="#FFFFFF" stroke="#A5B4FC"/>
+  <text x="770" y="331" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#0F172A">Repository</text>
 
-  <line x1="174" y1="120" x2="220" y2="120" stroke="#94A3B8" stroke-width="1.75" marker-end="url(#a)"/>
-  <line x1="408" y1="120" x2="454" y2="120" stroke="#94A3B8" stroke-width="1.75" marker-end="url(#a)"/>
-  <line x1="642" y1="120" x2="698" y2="120" stroke="#94A3B8" stroke-width="1.75" marker-end="url(#a)"/>
-  <line x1="548" y1="180" x2="548" y2="212" stroke="#94A3B8" stroke-width="1.75" marker-end="url(#a)"/>
+  <line x1="450" y1="368" x2="450" y2="392" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#down)"/>
+  <text x="466" y="386" font-family="Inter, Segoe UI, sans-serif" font-size="11" fill="#64748B">JPA / Upload</text>
 
-  <text x="197" y="110" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="11" fill="#64748B">HTTPS</text>
-  <text x="431" y="110" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="11" fill="#64748B">REST / JWT</text>
-  <text x="670" y="110" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="11" fill="#64748B">Upload</text>
-  <text x="562" y="200" font-family="Inter, Segoe UI, sans-serif" font-size="11" fill="#64748B">JPA</text>
+  <!-- Layer 4: Data -->
+  <rect x="40" y="396" width="820" height="96" rx="14" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="60" y="420" font-family="Inter, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#64748B" letter-spacing="0.04em">DATA &amp; EXTERNAL</text>
+  <rect x="60" y="434" width="180" height="40" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/>
+  <text x="150" y="459" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#0F172A">MariaDB</text>
+  <rect x="260" y="434" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/>
+  <text x="360" y="459" text-anchor="middle" font-family="Inter, Segoe UI, sans-serif" font-size="13" font-weight="600" fill="#0F172A">Cloudinary CDN</text>
 </svg>
