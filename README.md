@@ -339,7 +339,7 @@ SK-Rookies5-MINI2_MATE/
 
 ---
 
-## ⚙️ 설치 및 실행 방법 (Getting Started)
+## ⚙️ Getting Started
 
 ### Prerequisites
 
@@ -347,65 +347,82 @@ SK-Rookies5-MINI2_MATE/
 - Node.js 18.x 이상 및 npm
 - MariaDB 10.x 이상
 
-### 1. Database 설정
+### 1. 레포지토리 클론
 
-로컬 MariaDB에 접속하여 프로젝트용 스키마를 생성합니다.
+```bash
+git clone https://github.com/Hyeonseok93/SK-Rookies5-MINI2_MATE.git
+cd SK-Rookies5-MINI2_MATE
+```
+
+### 2. Database 설정
+
+로컬 MariaDB에 프로젝트용 스키마를 생성합니다.
 
 ```sql
 CREATE DATABASE mate_db;
 ```
 
-### 2. Backend 실행
+### 3. Backend 환경 변수
 
-1. `MATE-backend` 디렉토리로 이동합니다.
-   ```bash
-   cd MATE-backend
-   ```
-2. 예시 파일을 복사해 `.env`를 만들고 로컬 환경에 맞게 값을 설정합니다.
-   ```bash
-   # Windows
-   copy .env.example .env
+```bash
+cd MATE-backend
+```
 
-   # macOS / Linux
-   cp .env.example .env
-   ```
-   ```env
-   DB_URL=jdbc:mariadb://localhost:3306/mate_db
-   DB_USER=사용자이름
-   DB_PASSWORD=비밀번호
-   JWT_SECRET=최소_32글자_이상의_임의의_시크릿_키
-   CLOUDINARY_CLOUD_NAME=your_cloud_name
-   CLOUDINARY_API_KEY=your_api_key
-   CLOUDINARY_API_SECRET=your_api_secret
-   ```
-   `.env`는 Git에서 제외되며 실제 인증정보를 커밋하지 않습니다.
-3. 서버를 구동합니다.
+```bat
+:: Windows
+copy .env.example .env
+```
 
-   ```bash
-   # Windows
-   mvnw.cmd spring-boot:run
+```bash
+# macOS / Linux
+cp .env.example .env
+```
 
-   # Linux/macOS
-   ./mvnw spring-boot:run
-   ```
+`.env`를 로컬 환경에 맞게 수정합니다. (Git에 커밋하지 않습니다)
 
-   - 백엔드 서버는 `http://localhost:8080`에서 구동됩니다.
+```env
+SPRING_PROFILES_ACTIVE=dev
+DB_URL=jdbc:mariadb://localhost:3306/mate_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+DB_USER=root
+DB_PASSWORD=change_me
+JWT_SECRET=replace_with_a_random_secret_of_at_least_32_characters
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
 
-### 3. Frontend 실행
+### 4. Backend 실행
 
-1. `MATE-frontend` 디렉토리로 이동합니다.
-   ```bash
-   cd MATE-frontend
-   ```
-2. `.env.development` 환경 변수를 설정합니다.
-   ```env
-   VITE_API_BASE_URL=http://localhost:8080/api
-   ```
-3. 패키지를 설치하고 개발 서버를 시작합니다.
-   ```bash
-   npm install
-   npm run dev
-   ```
+```bat
+:: Windows
+mvnw.cmd spring-boot:run
+```
 
-   - 프론트엔드 웹 앱은 `http://localhost:5173`에서 확인할 수 있습니다.
+```bash
+# macOS / Linux
+./mvnw spring-boot:run
+```
+
+백엔드 서버는 `http://localhost:8080`에서 구동됩니다.
+
+### 5. Frontend 환경 변수
+
+```bash
+cd MATE-frontend
+```
+
+`MATE-frontend/.env.development`에 API 주소를 설정합니다.
+
+```env
+VITE_API_BASE_URL=http://localhost:8080/api
+```
+
+### 6. Frontend 실행
+
+```bash
+npm install
+npm run dev
+```
+
+프론트엔드 웹 앱은 `http://localhost:5173`에서 확인할 수 있습니다.
 
