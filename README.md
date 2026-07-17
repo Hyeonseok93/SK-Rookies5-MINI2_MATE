@@ -339,50 +339,6 @@ SK-Rookies5-MINI2_MATE/
 
 ---
 
-## 📊 System Architecture
-
-```mermaid
-flowchart TB
-  classDef node fill:#0D1117,stroke:#8B949E,color:#E6EDF3,stroke-width:1px
-  classDef accent fill:#0D1117,stroke:#C4B5FD,color:#E6EDF3,stroke-width:1.5px
-
-  subgraph Client
-    Browser:::node
-  end
-
-  subgraph Frontend
-    direction LR
-    React["React + MUI"]:::accent
-    Zustand:::node
-    Axios["Axios · JWT Silent Refresh"]:::node
-    MSW["MSW · local mock"]:::node
-  end
-
-  subgraph Backend["Backend · Spring Boot"]
-    direction LR
-    Controller:::node
-    Security["Security / JWT"]:::node
-    Service:::node
-    Mapper:::node
-    Repository:::node
-  end
-
-  subgraph Data["Data & External"]
-    direction LR
-    MariaDB:::node
-    Cloudinary["Cloudinary CDN"]:::node
-  end
-
-  Browser --> React
-  Axios --> Security
-  Security --> Controller
-  Service --> Repository
-  Repository --> MariaDB
-  Service --> Cloudinary
-```
-
----
-
 ## ⚙️ 설치 및 실행 방법 (Getting Started)
 
 ### Prerequisites
