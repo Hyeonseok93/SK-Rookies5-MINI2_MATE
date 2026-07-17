@@ -343,45 +343,39 @@ SK-Rookies5-MINI2_MATE/
 
 ```mermaid
 flowchart TB
-  classDef client fill:#334155,stroke:#94A3B8,color:#F8FAFC,stroke-width:1.5px
-  classDef fe fill:#5B21B6,stroke:#C4B5FD,color:#F5F3FF,stroke-width:1.5px
-  classDef be fill:#3730A3,stroke:#A5B4FC,color:#EEF2FF,stroke-width:1.5px
-  classDef data fill:#1E293B,stroke:#94A3B8,color:#F8FAFC,stroke-width:1.5px
+  classDef node fill:#0D1117,stroke:#8B949E,color:#E6EDF3,stroke-width:1px
+  classDef accent fill:#0D1117,stroke:#C4B5FD,color:#E6EDF3,stroke-width:1.5px
 
   subgraph Client
-    Browser:::client
+    Browser:::node
   end
 
   subgraph Frontend
     direction LR
-    React["React + MUI"]:::fe
-    Zustand:::fe
-    Axios["Axios · JWT Silent Refresh"]:::fe
-    MSW["MSW · local mock"]:::fe
+    React["React + MUI"]:::accent
+    Zustand:::node
+    Axios["Axios · JWT Silent Refresh"]:::node
+    MSW["MSW · local mock"]:::node
   end
 
   subgraph Backend["Backend · Spring Boot"]
     direction LR
-    Controller:::be
-    Security["Security / JWT"]:::be
-    Service:::be
-    Mapper:::be
-    Repository:::be
+    Controller:::node
+    Security["Security / JWT"]:::node
+    Service:::node
+    Mapper:::node
+    Repository:::node
   end
 
   subgraph Data["Data & External"]
     direction LR
-    MariaDB:::data
-    Cloudinary["Cloudinary CDN"]:::data
+    MariaDB:::node
+    Cloudinary["Cloudinary CDN"]:::node
   end
 
   Browser --> React
-  React --> Zustand
-  React --> Axios
   Axios --> Security
   Security --> Controller
-  Controller --> Service
-  Service --> Mapper
   Service --> Repository
   Repository --> MariaDB
   Service --> Cloudinary
