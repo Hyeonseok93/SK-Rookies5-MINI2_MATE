@@ -46,8 +46,8 @@ export const authApi = {
   },
 
   // 토큰 갱신 API (POST /api/auth/refresh)
-  refresh: async (refreshToken) => {
-    return await axiosInstance.post('/auth/refresh', { refreshToken });
+  refresh: async () => {
+    return await axiosInstance.post('/auth/refresh');
   },
 
 

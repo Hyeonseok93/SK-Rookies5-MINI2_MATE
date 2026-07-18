@@ -67,36 +67,31 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = useAuthStore.getState().refreshToken;
-      if (refreshToken) {
-        try {
-          // 중요: 무한 루프 방지를 위해 axiosInstance 대신 axios 원본 사용
-          const refreshRes = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
+      try {
+        // Refresh Token은 HttpOnly 쿠키로만 전송한다. 무한 루프 방지를 위해 원본 axios를 사용한다.
+        const refreshRes = await axios.post(
+          `${API_BASE_URL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
           
-          if (refreshRes.data.success) {
-            const { accessToken: newAccessToken, refreshToken: newRefreshToken } = refreshRes.data.data;
+        if (refreshRes.data.success) {
+          const { accessToken: newAccessToken } = refreshRes.data.data;
             
-            // 스토어 업데이트
-            useAuthStore.getState().setTokens(newAccessToken, newRefreshToken || refreshToken);
+          useAuthStore.getState().setAccessToken(newAccessToken);
             
-            // 큐에 대기 중인 요청들 일괄 처리
-            processQueue(null, newAccessToken);
+          processQueue(null, newAccessToken);
             
-            // 현재 요청 재시도
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            return axiosInstance(originalRequest);
-          }
-        } catch (refreshError) {
-          processQueue(refreshError, null);
-          useAuthStore.getState().logout();
-          window.location.href = '/login';
-          return Promise.reject(refreshError);
-        } finally {
-          isRefreshing = false;
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return axiosInstance(originalRequest);
         }
-      } else {
+      } catch (refreshError) {
+        processQueue(refreshError, null);
         useAuthStore.getState().logout();
         window.location.href = '/login';
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 

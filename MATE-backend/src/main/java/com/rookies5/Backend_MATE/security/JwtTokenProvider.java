@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -22,6 +23,7 @@ public class JwtTokenProvider {
     public static final String CLAIM_TOKEN_TYPE = "tokenType";
     public static final String TOKEN_TYPE_ACCESS = "access";
     public static final String TOKEN_TYPE_REFRESH = "refresh";
+    public static final String CLAIM_TOKEN_FAMILY = "familyId";
 
     private final SecretKey key;
     private final CustomUserDetailsService userDetailsService;
@@ -38,16 +40,20 @@ public class JwtTokenProvider {
 
     // 1. Access Token 생성 (1시간짜리)
     public String createAccessToken(Authentication authentication) {
-        return createToken(authentication, accessTokenValidityTime, TOKEN_TYPE_ACCESS);
+        return createToken(authentication, accessTokenValidityTime, TOKEN_TYPE_ACCESS, null);
     }
 
     // 2. Refresh Token 생성 (7일짜리)
     public String createRefreshToken(Authentication authentication) {
-        return createToken(authentication, refreshTokenValidityTime, TOKEN_TYPE_REFRESH);
+        return createRefreshToken(authentication, UUID.randomUUID().toString());
+    }
+
+    public String createRefreshToken(Authentication authentication, String familyId) {
+        return createToken(authentication, refreshTokenValidityTime, TOKEN_TYPE_REFRESH, familyId);
     }
 
     // 내부에서 토큰을 찍어내는 공통 메서드
-    private String createToken(Authentication authentication, long validityTime, String tokenType) {
+    private String createToken(Authentication authentication, long validityTime, String tokenType, String familyId) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -55,13 +61,19 @@ public class JwtTokenProvider {
         long now = (new Date()).getTime();
         Date validity = new Date(now + validityTime);
 
-        return Jwts.builder()
+        JwtBuilder builder = Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(authentication.getName())
                 .claim("auth", authorities)
                 .claim(CLAIM_TOKEN_TYPE, tokenType)
                 .expiration(validity)
-                .signWith(key)
-                .compact();
+                .signWith(key);
+
+        if (familyId != null) {
+            builder.claim(CLAIM_TOKEN_FAMILY, familyId);
+        }
+
+        return builder.compact();
     }
 
     // 3. 토큰을 열어서 안에 있는 유저 정보(Authentication)를 꺼내는 메서드
@@ -78,10 +90,23 @@ public class JwtTokenProvider {
         try {
             parseClaims(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            log.info("만료된 JWT 토큰입니다.");
         } catch (JwtException | IllegalArgumentException e) {
-            log.info("유효하지 않거나 만료된 JWT 토큰입니다.");
+            log.info("유효하지 않은 JWT 토큰입니다.");
         }
         return false;
+    }
+
+    public boolean isTokenExpired(String token) {
+        try {
+            parseClaims(token);
+            return false;
+        } catch (ExpiredJwtException e) {
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
     public boolean isAccessToken(String token) {
@@ -100,6 +125,18 @@ public class JwtTokenProvider {
         } catch (JwtException | IllegalArgumentException e) {
             return null;
         }
+    }
+
+    public String getTokenFamily(String token) {
+        try {
+            return parseClaims(token).get(CLAIM_TOKEN_FAMILY, String.class);
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    public long getRefreshTokenValidityTime() {
+        return refreshTokenValidityTime;
     }
 
     private Claims parseClaims(String token) {

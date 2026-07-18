@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -108,7 +109,12 @@ class AuthPrivacyTest {
                 .phoneNumber("01077778888")
                 .position(Position.BE)
                 .build());
-        refreshTokenRepository.save(new RefreshToken(user.getId(), "old-refresh-token"));
+        refreshTokenRepository.save(new RefreshToken(
+                user.getId(),
+                "privacy-test-family",
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                LocalDateTime.now().plusDays(1)
+        ));
 
         mockMvc.perform(post("/api/auth/reset-password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -121,9 +127,8 @@ class AuthPrivacyTest {
 
         User reloaded = userRepository.findById(user.getId()).orElseThrow();
         assertThat(reloaded.getPassword()).isEqualTo(oldHash);
-        assertThat(refreshTokenRepository.findByUserId(user.getId())).isPresent();
-        assertThat(refreshTokenRepository.findByUserId(user.getId()).get().getTokenValue())
-                .isEqualTo("old-refresh-token");
+        assertThat(refreshTokenRepository.findAllByUserIdAndRevokedAtIsNull(user.getId()))
+                .hasSize(1);
     }
 
     @Test

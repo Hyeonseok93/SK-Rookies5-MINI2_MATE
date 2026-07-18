@@ -40,8 +40,8 @@ const LoginPage = () => {
         password: password.trim() 
       });
       
-      const { accessToken, refreshToken, user } = response;
-      setAuth(accessToken, refreshToken, user);
+      const { accessToken, user } = response;
+      setAuth(accessToken, user);
       
       showToast('성공적으로 로그인되었습니다!', 'success');
       

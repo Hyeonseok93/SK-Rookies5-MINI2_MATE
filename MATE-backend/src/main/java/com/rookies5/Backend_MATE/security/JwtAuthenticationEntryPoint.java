@@ -21,9 +21,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        // 설계서의 AUTH_003 (유효하지 않은 토큰) 매핑
-        ErrorCode errorCode = ErrorCode.AUTH_TOKEN_INVALID;
-        
+        ErrorCode errorCode = "expired".equals(request.getAttribute("jwtException"))
+                ? ErrorCode.AUTH_TOKEN_EXPIRED
+                : ErrorCode.AUTH_TOKEN_INVALID;
+
         sendErrorResponse(response, errorCode);
     }
 

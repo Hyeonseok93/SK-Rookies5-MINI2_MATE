@@ -12,6 +12,8 @@ public enum ErrorCode {
     AUTH_TOKEN_EXPIRED("AUTH_002", "토큰이 만료되었습니다", HttpStatus.UNAUTHORIZED),
     AUTH_TOKEN_INVALID("AUTH_003", "유효하지 않은 토큰입니다", HttpStatus.UNAUTHORIZED),
     AUTH_ACCESS_DENIED("AUTH_004", "접근 권한이 없습니다", HttpStatus.FORBIDDEN),
+    AUTH_REFRESH_TOKEN_REUSED("AUTH_005", "재사용된 리프레시 토큰이 감지되어 세션을 종료했습니다", HttpStatus.UNAUTHORIZED),
+    AUTH_RATE_LIMIT_EXCEEDED("AUTH_006", "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요", HttpStatus.TOO_MANY_REQUESTS),
 
     // 회원 관련 (40X, 422)
     USER_NOT_FOUND("USER_001", "사용자를 찾을 수 없습니다", HttpStatus.NOT_FOUND),

@@ -1,33 +1,41 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 import theme from '@/styles/theme';
 import MainLayout from '@/component/layout/MainLayout';
 import ProtectedRoute from '@/component/common/ProtectedRoute';
 import GuestRoute from '@/component/common/GuestRoute';
 
-// Pages
-import MainPage from '@/pages/MainPage.jsx';
-import PostDetailPage from '@/pages/PostDetailPage.jsx';
-import LoginPage from '@/pages/LoginPage.jsx';
-import RegisterPage from '@/pages/RegisterPage.jsx';
-import PostWritePage from '@/pages/PostWritePage.jsx';
-import PostEditPage from '@/pages/PostEditPage.jsx';
-import BoardPage from '@/pages/BoardPage.jsx';
-import MyPage from '@/pages/MyPage.jsx';
-import ErrorPage from '@/pages/ErrorPage.jsx';
-import FindEmailPage from '@/pages/FindEmailPage.jsx';
-import FindPasswordPage from '@/pages/FindPasswordPage.jsx';
-import PostApplyPage from '@/pages/PostApplyPage.jsx'; // 1. 임포트 추가
+const MainPage = lazy(() => import('@/pages/MainPage.jsx'));
+const PostDetailPage = lazy(() => import('@/pages/PostDetailPage.jsx'));
+const LoginPage = lazy(() => import('@/pages/LoginPage.jsx'));
+const RegisterPage = lazy(() => import('@/pages/RegisterPage.jsx'));
+const PostWritePage = lazy(() => import('@/pages/PostWritePage.jsx'));
+const PostEditPage = lazy(() => import('@/pages/PostEditPage.jsx'));
+const BoardPage = lazy(() => import('@/pages/BoardPage.jsx'));
+const MyPage = lazy(() => import('@/pages/MyPage.jsx'));
+const ErrorPage = lazy(() => import('@/pages/ErrorPage.jsx'));
+const FindEmailPage = lazy(() => import('@/pages/FindEmailPage.jsx'));
+const FindPasswordPage = lazy(() => import('@/pages/FindPasswordPage.jsx'));
+const PostApplyPage = lazy(() => import('@/pages/PostApplyPage.jsx'));
+
+const RouteFallback = () => (
+  <Box sx={{ minHeight: '60vh', display: 'grid', placeItems: 'center' }}>
+    <CircularProgress aria-label="페이지 로딩 중" />
+  </Box>
+);
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Routes>
-          <Route element={<MainLayout />}>
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            <Route element={<MainLayout />}>
             {/* 1. 공개 페이지 */}
             <Route path="/" element={<MainPage />} />
             <Route path="/posts/:id" element={<PostDetailPage />} />
@@ -62,8 +70,9 @@ function App() {
             } />
             {/* 5. 에러 페이지 (항상 맨 아래에 위치) */}
             <Route path="*" element={<ErrorPage />} />
-          </Route>
-        </Routes>
+            </Route>
+          </Routes>
+        </Suspense>
       </Router>
     </ThemeProvider>
   );

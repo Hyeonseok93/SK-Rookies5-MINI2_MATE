@@ -4,15 +4,19 @@ import com.rookies5.Backend_MATE.common.SuccessResponse;
 import com.rookies5.Backend_MATE.dto.request.LoginRequestDto;
 import com.rookies5.Backend_MATE.dto.request.UserRequestDto;
 import com.rookies5.Backend_MATE.dto.response.AuthResponseDto;
+import com.rookies5.Backend_MATE.dto.response.AuthSessionDto;
 import com.rookies5.Backend_MATE.dto.response.UserResponseDto;
 import com.rookies5.Backend_MATE.exception.BusinessException;
 import com.rookies5.Backend_MATE.exception.ErrorCode;
 import com.rookies5.Backend_MATE.service.AuthService;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import com.rookies5.Backend_MATE.security.RefreshTokenCookieManager;
 
 import java.util.Map;
 
@@ -31,6 +35,7 @@ public class AuthController {
             "셀프서비스 계정 복구는 현재 이용할 수 없습니다. 관리자에게 문의해 주세요.";
 
     private final AuthService authService;
+    private final RefreshTokenCookieManager refreshTokenCookieManager;
     // ✅ UserRepository 의존성 완전 제거 (비즈니스 로직은 Service에서만!)
 
     /**
@@ -107,11 +112,14 @@ public class AuthController {
      * 7. 로그인 (JWT 토큰 발급) - 규격 통일
      */
     @PostMapping("/login")
-    public SuccessResponse<AuthResponseDto> login(@RequestBody @Valid LoginRequestDto requestDto) {
+    public SuccessResponse<AuthResponseDto> login(
+            @RequestBody @Valid LoginRequestDto requestDto,
+            HttpServletResponse response) {
         log.info("로그인 요청: {}", requestDto.getEmail());
 
-        AuthResponseDto responseDto = authService.login(requestDto.getEmail(), requestDto.getPassword());
-        return new SuccessResponse<>("로그인에 성공하였습니다.", responseDto);
+        AuthSessionDto session = authService.login(requestDto.getEmail(), requestDto.getPassword());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookieManager.create(session.refreshToken()));
+        return new SuccessResponse<>("로그인에 성공하였습니다.", session.response());
     }
 
     /**
@@ -119,11 +127,12 @@ public class AuthController {
      * ✅ Controller에서 UserRepository 직접 조회하던 로직을 Service로 이동
      */
     @PostMapping("/logout")
-    public SuccessResponse<Void> logout(Authentication authentication) {
+    public SuccessResponse<Void> logout(Authentication authentication, HttpServletResponse response) {
         log.info("로그아웃 요청");
         // ✅ 이메일만 꺼내서 Service로 넘김 (DB 조회는 Service 책임)
         String email = authentication.getName();
         authService.logout(email);
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookieManager.clear());
         return new SuccessResponse<>("로그아웃이 성공적으로 완료되었습니다.");
     }
 
@@ -131,13 +140,15 @@ public class AuthController {
      * 9. 토큰 재발급 API - 규격 통일
      */
     @PostMapping("/refresh")
-    public SuccessResponse<AuthResponseDto> refresh(@RequestBody Map<String, String> request) {
+    public SuccessResponse<AuthResponseDto> refresh(
+            @CookieValue(name = RefreshTokenCookieManager.COOKIE_NAME, required = false) String refreshToken,
+            HttpServletResponse response) {
         log.info("토큰 재발급 요청");
-        String refreshToken = request.get("refreshToken");
         if (refreshToken == null || refreshToken.trim().isEmpty()) {
             throw new BusinessException(ErrorCode.REQUIRED_FIELD_MISSING);
         }
-        AuthResponseDto responseDto = authService.refresh(refreshToken);
-        return new SuccessResponse<>("토큰이 성공적으로 재발급되었습니다.", responseDto);
+        AuthSessionDto session = authService.refresh(refreshToken);
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookieManager.create(session.refreshToken()));
+        return new SuccessResponse<>("토큰이 성공적으로 재발급되었습니다.", session.response());
     }
 }

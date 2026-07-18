@@ -27,14 +27,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
 
         try {
-            if (token != null && jwtTokenProvider.validateToken(token)) {
-                // Refresh 토큰은 Bearer 인증에 사용할 수 없음
-                if (!jwtTokenProvider.isAccessToken(token)) {
-                    log.warn("Refresh 토큰이 Authorization Bearer로 사용되어 거부되었습니다.");
+            if (token != null) {
+                if (jwtTokenProvider.validateToken(token)) {
+                    // Refresh 토큰은 Bearer 인증에 사용할 수 없음
+                    if (!jwtTokenProvider.isAccessToken(token)) {
+                        log.warn("Refresh 토큰이 Authorization Bearer로 사용되어 거부되었습니다.");
+                        SecurityContextHolder.clearContext();
+                    } else {
+                        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                } else if (jwtTokenProvider.isTokenExpired(token)) {
+                    // 프론트 silent refresh가 AUTH_002를 보고 쿠키 갱신을 시도하도록 표시한다.
+                    request.setAttribute("jwtException", "expired");
                     SecurityContextHolder.clearContext();
-                } else {
-                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
         } catch (Exception e) {

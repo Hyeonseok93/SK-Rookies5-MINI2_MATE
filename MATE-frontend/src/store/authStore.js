@@ -9,12 +9,11 @@ export const useAuthStore = create(
   persist(
     (set) => ({
       accessToken: null,
-      refreshToken: null,
       user: null,
       isLoggedIn: false,
 
       // 로그인 성공 시 호출
-      setAuth: (accessToken, refreshToken, userData) => {
+      setAuth: (accessToken, userData) => {
         if (!userData) return;
 
         // 설계서 v1.1 규격을 프론트엔드 내부 규격으로 매핑
@@ -26,17 +25,15 @@ export const useAuthStore = create(
 
         set({
           accessToken,
-          refreshToken,
           user: mappedUser,
           isLoggedIn: !!accessToken,
         });
       },
 
       // 토큰 만료 시 갱신용
-      setTokens: (accessToken, refreshToken) => {
+      setAccessToken: (accessToken) => {
         set({
           accessToken,
-          refreshToken,
           isLoggedIn: !!accessToken,
         });
       },
@@ -62,7 +59,6 @@ export const useAuthStore = create(
       logout: () => {
         set({
           accessToken: null,
-          refreshToken: null,
           user: null,
           isLoggedIn: false,
         });
@@ -71,6 +67,18 @@ export const useAuthStore = create(
     }),
     {
       name: 'mate-auth',
+      version: 2,
+      migrate: (persistedState) => {
+        if (!persistedState) return persistedState;
+        const safeState = { ...persistedState };
+        delete safeState.refreshToken;
+        return safeState;
+      },
+      partialize: ({ accessToken, user, isLoggedIn }) => ({
+        accessToken,
+        user,
+        isLoggedIn,
+      }),
     }
   )
 );

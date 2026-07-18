@@ -2,6 +2,7 @@ package com.rookies5.Backend_MATE.service.impl;
 
 import com.rookies5.Backend_MATE.dto.request.UserRequestDto;
 import com.rookies5.Backend_MATE.dto.response.AuthResponseDto;
+import com.rookies5.Backend_MATE.dto.response.AuthSessionDto;
 import com.rookies5.Backend_MATE.dto.response.UserResponseDto;
 import com.rookies5.Backend_MATE.entity.RefreshToken;
 import com.rookies5.Backend_MATE.entity.User;
@@ -22,6 +23,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.util.HexFormat;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -103,29 +111,31 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     @Transactional
-    public AuthResponseDto login(String email, String password) {
+    public AuthSessionDto login(String email, String password) {
         try {
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(email, password);
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
             String accessToken = jwtTokenProvider.createAccessToken(authentication);
-            String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
+            String familyId = UUID.randomUUID().toString();
+            String refreshToken = jwtTokenProvider.createRefreshToken(authentication, familyId);
 
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-            // Refresh Token DB 저장 로직
-            // 이미 이 유저의 토큰이 있으면 덮어쓰고, 없으면 새로 생성해서 저장합니다.
-            refreshTokenRepository.findByUserId(user.getId())
-                    .ifPresentOrElse(
-                            token -> token.updateToken(refreshToken), // 있으면 값 업데이트 (더티 체킹)
-                            () -> refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken)) // 없으면 새로 저장
-                    );
+            // 새 로그인은 기존 세션을 폐기한다. 원문 JWT 대신 SHA-256 해시만 저장한다.
+            refreshTokenRepository.findAllByUserIdAndRevokedAtIsNull(user.getId())
+                    .forEach(RefreshToken::revoke);
+            refreshTokenRepository.save(new RefreshToken(
+                    user.getId(),
+                    familyId,
+                    hashToken(refreshToken),
+                    LocalDateTime.now().plusNanos(jwtTokenProvider.getRefreshTokenValidityTime() * 1_000_000)
+            ));
 
-            return AuthResponseDto.builder()
+            AuthResponseDto response = AuthResponseDto.builder()
                     .accessToken(accessToken)
-                    .refreshToken(refreshToken)
                     .tokenType("Bearer")
                     .expiresIn(3600)
                     .user(AuthResponseDto.UserInfo.builder()
@@ -135,6 +145,7 @@ public class AuthServiceImpl implements AuthService {
                             .position(user.getPosition() != null ? user.getPosition().name() : null)
                             .build())
                     .build();
+            return new AuthSessionDto(response, refreshToken);
 
         } catch (AuthenticationException e) {
             throw new BusinessException(ErrorCode.AUTH_INVALID_CREDENTIALS);
@@ -213,40 +224,54 @@ public class AuthServiceImpl implements AuthService {
      * 6. 토큰 재발급 로직 (Access Token 만료 시)
      */
     @Override
-    @Transactional
-    public AuthResponseDto refresh(String refreshToken) {
+    @Transactional(noRollbackFor = BusinessException.class)
+    public AuthSessionDto refresh(String refreshToken) {
         // Access 토큰을 refresh 엔드포인트에 사용하면 거부 (만료 토큰은 type 파싱 실패 → 아래로 진행)
         if (jwtTokenProvider.isAccessToken(refreshToken)) {
             throw new BusinessException(ErrorCode.AUTH_TOKEN_INVALID);
         }
 
-        // 1. DB에 해당 토큰이 존재하는지 검증
-        RefreshToken tokenEntity = refreshTokenRepository.findByTokenValue(refreshToken)
+        String tokenHash = hashToken(refreshToken);
+
+        // 잠금 조회로 동시에 같은 토큰이 두 번 회전되는 것을 막는다.
+        RefreshToken tokenEntity = refreshTokenRepository.findByTokenHash(tokenHash)
                 .orElseThrow(() -> new BusinessException(ErrorCode.AUTH_TOKEN_INVALID));
 
-        // 2. JWT 자체의 유효성 검증 (만료일이 지났는지 등)
+        // 이미 회전된 토큰이 다시 오면 탈취 가능성이 있으므로 토큰 패밀리 전체를 폐기한다.
+        if (tokenEntity.isRevoked()) {
+            refreshTokenRepository.findAllByFamilyIdAndRevokedAtIsNull(tokenEntity.getFamilyId())
+                    .forEach(RefreshToken::revoke);
+            throw new BusinessException(ErrorCode.AUTH_REFRESH_TOKEN_REUSED);
+        }
+
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            refreshTokenRepository.delete(tokenEntity);
+            tokenEntity.revoke();
             throw new BusinessException(ErrorCode.AUTH_TOKEN_EXPIRED);
         }
 
-        // 3. refresh 타입 클레임 재확인
-        if (!jwtTokenProvider.isRefreshToken(refreshToken)) {
+        if (!jwtTokenProvider.isRefreshToken(refreshToken)
+                || !tokenEntity.getFamilyId().equals(jwtTokenProvider.getTokenFamily(refreshToken))) {
             throw new BusinessException(ErrorCode.AUTH_TOKEN_INVALID);
         }
 
-        // 4. 토큰 주인의 정보 찾기
         User user = userRepository.findById(tokenEntity.getUserId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        // 5. 새로운 Access Token 발급
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), null, null);
+        Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
         String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(authentication, tokenEntity.getFamilyId());
+        String newRefreshHash = hashToken(newRefreshToken);
 
-        // 6. 결과 반환 (응답 shape 유지)
-        return AuthResponseDto.builder()
+        tokenEntity.rotate(newRefreshHash);
+        refreshTokenRepository.save(new RefreshToken(
+                user.getId(),
+                tokenEntity.getFamilyId(),
+                newRefreshHash,
+                LocalDateTime.now().plusNanos(jwtTokenProvider.getRefreshTokenValidityTime() * 1_000_000)
+        ));
+
+        AuthResponseDto response = AuthResponseDto.builder()
                 .accessToken(newAccessToken)
-                .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .expiresIn(3600)
                 .user(AuthResponseDto.UserInfo.builder()
@@ -256,6 +281,7 @@ public class AuthServiceImpl implements AuthService {
                         .position(user.getPosition() != null ? user.getPosition().name() : null)
                         .build())
                 .build();
+        return new AuthSessionDto(response, newRefreshToken);
     }
 
     /**
@@ -268,8 +294,18 @@ public class AuthServiceImpl implements AuthService {
         // ✅ DB 조회 책임을 Service로 이동
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        // DB에서 해당 유저의 리프레시 토큰을 삭제하여 더 이상 토큰 갱신을 못하게 막음
-        refreshTokenRepository.deleteByUserId(user.getId());
+        refreshTokenRepository.findAllByUserIdAndRevokedAtIsNull(user.getId())
+                .forEach(RefreshToken::revoke);
         log.info("유저 ID: {} 로그아웃 및 리프레시 토큰 삭제 완료", user.getId());
+    }
+
+    private String hashToken(String token) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256")
+                    .digest(token.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(digest);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 is not available", e);
+        }
     }
 }

@@ -43,7 +43,6 @@ export const handlers = [
         message: "로그인에 성공하였습니다.",
         data: { 
           accessToken: 'mock-access-token', 
-          refreshToken: 'mock-refresh-token', 
           tokenType: "Bearer",
           expiresIn: 3600,
           user: { id: user.id, nickname: user.nickname, email: user.email, position: user.position } 
@@ -59,12 +58,8 @@ export const handlers = [
     return HttpResponse.json({ success: true, message: "로그아웃이 성공적으로 완료되었습니다.", data: null });
   }),
 
-  http.post('*/api/auth/refresh', async ({ request }) => {
-    const { refreshToken } = await request.json();
-    if (refreshToken !== 'mock-refresh-token') {
-      return HttpResponse.json({ success: false, error: { code: 'AUTH_003', message: '유효하지 않은 리프레시 토큰입니다.' } }, { status: 401 });
-    }
-    return HttpResponse.json({ success: true, data: { accessToken: 'mock-access-token', refreshToken, tokenType: 'Bearer' } });
+  http.post('*/api/auth/refresh', () => {
+    return HttpResponse.json({ success: true, data: { accessToken: 'mock-access-token', tokenType: 'Bearer' } });
   }),
 
   http.post('*/api/auth/signup', async ({ request }) => {
