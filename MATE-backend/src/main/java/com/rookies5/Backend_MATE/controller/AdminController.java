@@ -7,10 +7,12 @@ import com.rookies5.Backend_MATE.entity.Project;
 import com.rookies5.Backend_MATE.entity.User;
 import com.rookies5.Backend_MATE.mapper.ProjectMapper;
 import com.rookies5.Backend_MATE.mapper.UserMapper;
+import com.rookies5.Backend_MATE.exception.EntityNotFoundException;
+import com.rookies5.Backend_MATE.exception.ErrorCode;
 import com.rookies5.Backend_MATE.repository.AdminLogRepository;
-import com.rookies5.Backend_MATE.repository.ProjectMemberRepository;
 import com.rookies5.Backend_MATE.repository.ProjectRepository;
 import com.rookies5.Backend_MATE.repository.UserRepository;
+import com.rookies5.Backend_MATE.service.DomainDeletionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
@@ -19,7 +21,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class AdminController {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final AdminLogRepository adminLogRepository;
-    private final ProjectMemberRepository projectMemberRepository;
+    private final DomainDeletionService domainDeletionService;
 
     private final int PAGE_SIZE = 5;
 
@@ -55,6 +56,7 @@ public class AdminController {
 
     // ================== 대시보드 ==================
     @GetMapping("/dashboard")
+    @Transactional(readOnly = true)
     public String dashboard(@RequestParam(defaultValue = "0") int userPage,
                             @RequestParam(defaultValue = "0") int projectPage,
                             @RequestParam(defaultValue = "0") int logPage,
@@ -89,6 +91,7 @@ public class AdminController {
 
     // ================== 회원 ==================
     @GetMapping("/users")
+    @Transactional(readOnly = true)
     public String userManagement(@RequestParam(defaultValue = "0") int userPage, Model model) {
         Page<UserResponseDto> users = userRepository
                 .findAllIncludingDeleted(PageRequest.of(userPage, PAGE_SIZE))
@@ -116,10 +119,11 @@ public class AdminController {
     // 회원 상세 (모달용)
     @GetMapping("/users/{id}")
     @ResponseBody
+    @Transactional(readOnly = true)
     public UserResponseDto getUserDetail(@PathVariable Long id) {
         return userRepository.findByIdIncludingDeleted(id)
                 .map(UserMapper::mapToUserResponse)
-                .orElseThrow(() -> new RuntimeException("해당 회원을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND, id));
     }
 
     @PostMapping("/users/delete/{id}")
@@ -128,19 +132,8 @@ public class AdminController {
                              @RequestParam(defaultValue = "0") int userPage,
                              @RequestParam(required = false) String redirectPage) {
 
-        User user = userRepository.findByIdIncludingDeleted(id)
-                .orElseThrow(() -> new RuntimeException("회원 없음"));
-
-        // 회원 소프트 삭제
-        userRepository.softDeleteById(id);
+        User user = domainDeletionService.deleteUser(id);
         addLog(user.getNickname() + "님 계정을 삭제했습니다.");
-
-
-        // 회원이 작성한 프로젝트도 소프트 삭제
-        projectRepository.findAllByOwnerId(id).forEach(p -> {
-            projectRepository.softDeleteById(p.getId());
-            addLog(p.getTitle() + " 프로젝트를 삭제했습니다.");
-        });
 
         if ("users".equals(redirectPage)) {
             return "redirect:/admin/users?userPage=" + userPage;
@@ -149,15 +142,12 @@ public class AdminController {
     }
 
     @PostMapping("/users/restore/{id}")
+    @Transactional
     public String restoreUser(@PathVariable Long id,
                               @RequestParam(defaultValue = "0") int userPage,
                               @RequestParam(required = false) String redirectPage) {
 
-        User user = userRepository.findByIdIncludingDeleted(id)
-                .orElseThrow(() -> new RuntimeException("회원 없음"));
-
-        user.setDeletedAt(null);
-        userRepository.save(user);
+        User user = domainDeletionService.restoreUser(id);
         addLog(user.getNickname() + "님 계정을 복구했습니다.");
 
         if ("users".equals(redirectPage)) {
@@ -180,9 +170,10 @@ public class AdminController {
     // 프로젝트 상세 (모달용)
     @GetMapping("/projects/{id}")
     @ResponseBody
+    @Transactional(readOnly = true)
     public ProjectResponseDto getProjectDetail(@PathVariable Long id) {
         Project project = projectRepository.findByIdIncludingDeleted(id)
-                .orElseThrow(() -> new RuntimeException("해당 프로젝트를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PROJECT_NOT_FOUND, id));
         return ProjectMapper.mapToResponse(project);
     }
 
@@ -192,11 +183,7 @@ public class AdminController {
                                 @RequestParam(defaultValue = "0") int projectPage,
                                 @RequestParam(required = false) String redirectPage) {
 
-        Project project = projectRepository.findByIdIncludingDeleted(id)
-                .orElseThrow(() -> new RuntimeException("프로젝트 없음"));
-        project.setCurrentCount(0);
-        projectRepository.softDeleteById(id);
-        projectMemberRepository.softDeleteAllByProjectId(id);
+        Project project = domainDeletionService.deleteProject(id);
         addLog(project.getTitle() + " 프로젝트를 삭제했습니다.");
 
         if ("projects".equals(redirectPage)) {
@@ -206,16 +193,13 @@ public class AdminController {
     }
 
     @PostMapping("/projects/restore/{id}")
+    @Transactional
     public String restoreProject(@PathVariable Long id,
                                  @RequestParam(defaultValue = "0") int projectPage,
                                  @RequestParam(required = false) String keyword,
                                  @RequestParam(required = false) String redirectPage) {
 
-        Project project = projectRepository.findByIdIncludingDeleted(id)
-                .orElseThrow(() -> new RuntimeException("프로젝트 없음"));
-
-        project.setDeletedAt(null);
-        projectRepository.save(project);
+        Project project = domainDeletionService.restoreProject(id);
         addLog(project.getTitle() + " 프로젝트를 복구했습니다.");
 
         if ("projects".equals(redirectPage)) {
@@ -226,6 +210,7 @@ public class AdminController {
 
     // ================== 검색 ==================
     @GetMapping("/search")
+    @Transactional(readOnly = true)
     public String search(@RequestParam String keyword,
                          @RequestParam(defaultValue = "0") int userPage,
                          @RequestParam(defaultValue = "0") int projectPage,
@@ -245,20 +230,12 @@ public class AdminController {
                         return dto;
                     });
         } else {
-            List<UserResponseDto> userList = userRepository.findAllIncludingDeletedList().stream()
-                    .filter(u -> u.getNickname().contains(keyword) || u.getEmail().contains(keyword))
+            users = userRepository.searchIncludingDeleted(keyword, PageRequest.of(userPage, PAGE_SIZE))
                     .map(u -> {
                         UserResponseDto dto = UserMapper.mapToUserResponse(u);
                         dto.setDeleted(u.getDeletedAt() != null);
                         return dto;
-                    })
-                    .toList();
-
-            // 🔹 페이징 적용
-            int start = Math.min(userPage * PAGE_SIZE, userList.size());
-            int end = Math.min(start + PAGE_SIZE, userList.size());
-            List<UserResponseDto> pageContent = userList.subList(start, end);
-            users = new PageImpl<>(pageContent, PageRequest.of(userPage, PAGE_SIZE), userList.size());
+                    });
         }
 
         // -----------------------------
@@ -269,17 +246,8 @@ public class AdminController {
             projects = projectRepository.findAllIncludingDeleted(PageRequest.of(projectPage, PAGE_SIZE))
                     .map(ProjectMapper::mapToResponse);
         } else {
-            List<ProjectResponseDto> projectList = projectRepository.findAllIncludingDeletedList().stream()
-                    .filter(p -> p.getTitle().contains(keyword) ||
-                            (p.getOwner() != null && p.getOwner().getNickname().contains(keyword)))
-                    .map(ProjectMapper::mapToResponse)
-                    .toList();
-
-            // 🔹 페이징 적용
-            int startP = Math.min(projectPage * PAGE_SIZE, projectList.size());
-            int endP = Math.min(startP + PAGE_SIZE, projectList.size());
-            List<ProjectResponseDto> projectPageContent = projectList.subList(startP, endP);
-            projects = new PageImpl<>(projectPageContent, PageRequest.of(projectPage, PAGE_SIZE), projectList.size());
+            projects = projectRepository.searchIncludingDeleted(keyword, PageRequest.of(projectPage, PAGE_SIZE))
+                    .map(ProjectMapper::mapToResponse);
         }
 
         // -----------------------------
@@ -290,15 +258,8 @@ public class AdminController {
         if (keyword == null || keyword.isBlank()) {
             logs = adminLogRepository.findAll(PageRequest.of(logPage, LOG_PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdAt")));
         } else {
-            List<AdminLog> logList = adminLogRepository.findAll().stream()
-                    .filter(l -> l.getAction().contains(keyword))
-                    .toList();
-
-            // 🔹 페이징 적용
-            int startL = Math.min(logPage * LOG_PAGE_SIZE, logList.size());
-            int endL = Math.min(startL + LOG_PAGE_SIZE, logList.size());
-            List<AdminLog> logPageContent = logList.subList(startL, endL);
-            logs = new PageImpl<>(logPageContent, PageRequest.of(logPage, LOG_PAGE_SIZE), logList.size());
+            logs = adminLogRepository.findByActionContainingIgnoreCase(keyword,
+                    PageRequest.of(logPage, LOG_PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdAt")));
         }
 
         // -----------------------------

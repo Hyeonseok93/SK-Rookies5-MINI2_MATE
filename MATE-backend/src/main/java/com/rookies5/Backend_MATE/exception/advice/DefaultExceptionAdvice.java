@@ -7,6 +7,7 @@ import com.rookies5.Backend_MATE.exception.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -51,7 +52,7 @@ public class DefaultExceptionAdvice {
                 .map(fieldError -> ErrorResponse.FieldError.builder()
                         .field(fieldError.getField())
                         .message(fieldError.getDefaultMessage())
-                        .rejectedValue(fieldError.getRejectedValue())
+                        .rejectedValue(maskSensitiveRejectedValue(fieldError.getField(), fieldError.getRejectedValue()))
                         .build())
                 .collect(Collectors.toList());
 
@@ -71,6 +72,20 @@ public class DefaultExceptionAdvice {
         return ResponseEntity.status(errorCode.getHttpStatus()).body(errorResponse);
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        log.warn("Data integrity violation", e);
+        ErrorCode errorCode = ErrorCode.DATA_INTEGRITY_VIOLATION;
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .error(ErrorResponse.ErrorDetail.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(errorResponse);
+    }
+
     /**
      * 일반 서버 예외 처리 (500)
      */
@@ -87,5 +102,12 @@ public class DefaultExceptionAdvice {
                 .build();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    private Object maskSensitiveRejectedValue(String field, Object rejectedValue) {
+        if (field != null && field.toLowerCase().contains("password")) {
+            return "******";
+        }
+        return rejectedValue;
     }
 }

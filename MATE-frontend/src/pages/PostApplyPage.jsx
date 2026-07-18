@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getApiErrorMessage, getProjectId } from '../utils/apiUtils';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box, Container, Typography, Paper, TextField, Button,
@@ -61,8 +62,8 @@ const PostApplyPage = () => {
           }
 
           // 지원 여부 확인 (설계서 v1.1: 내 지원 목록에 현재 프로젝트 ID가 있는지 체크)
-          const alreadyApplied = myApplies && myApplies.some(apply => 
-            Number(apply.projectId || apply.id) === Number(id)
+          const alreadyApplied = myApplies && myApplies.some(
+            (apply) => Number(getProjectId(apply)) === Number(id)
           );
 
           setPostInfo({
@@ -105,7 +106,7 @@ const PostApplyPage = () => {
       }); 
     } catch (err) {
       console.error("제출 오류:", err);
-      const errorMessage = err.error?.message || '제출 중 오류가 발생했습니다. 다시 시도해주세요.';
+      const errorMessage = getApiErrorMessage(err, '제출 중 오류가 발생했습니다. 다시 시도해주세요.');
       showToast(errorMessage, 'error');
     } finally {
       setIsSubmitting(false);

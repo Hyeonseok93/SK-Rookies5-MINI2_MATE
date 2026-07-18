@@ -2,6 +2,7 @@ package com.rookies5.Backend_MATE.controller;
 
 import com.rookies5.Backend_MATE.common.SuccessResponse;
 import com.rookies5.Backend_MATE.dto.request.ProjectRequestDto;
+import com.rookies5.Backend_MATE.dto.request.ProjectReopenRequestDto;
 import com.rookies5.Backend_MATE.dto.response.ProjectResponseDto;
 import com.rookies5.Backend_MATE.security.CustomUserDetails;
 import com.rookies5.Backend_MATE.service.ProjectService;
@@ -68,9 +69,12 @@ public class ProjectController {
      * 특정 프로젝트 상세 조회
      */
     @GetMapping("/{projectId}")
-    public SuccessResponse<ProjectResponseDto> getProjectById(@PathVariable Long projectId) {
+    public SuccessResponse<ProjectResponseDto> getProjectById(
+            @PathVariable Long projectId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         log.info("프로젝트 상세 조회 요청 - projectId: {}", projectId);
-        ProjectResponseDto responseDto = projectService.getProjectById(projectId);
+        Long userId = userDetails == null ? null : userDetails.getId();
+        ProjectResponseDto responseDto = projectService.getProjectById(projectId, userId);
         return new SuccessResponse<>("프로젝트 상세 조회가 완료되었습니다.", responseDto);
     }
 
@@ -120,9 +124,10 @@ public class ProjectController {
     @PatchMapping("/{projectId}/reopen")
     public SuccessResponse<ProjectResponseDto> reopenProject(
             @PathVariable Long projectId,
+            @Valid @RequestBody(required = false) ProjectReopenRequestDto requestDto,
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        ProjectResponseDto response = projectService.reopenProject(projectId, customUserDetails.getId());
+        ProjectResponseDto response = projectService.reopenProject(projectId, customUserDetails.getId(), requestDto);
 
         return new SuccessResponse<>("재모집이 시작되었습니다.", response);
     }

@@ -14,9 +14,6 @@ export const useUiStore = create((set, get) => ({
   // 모달 상태
   modal: null,
 
-  // 전역 로딩
-  globalLoading: false,
-
   /**
    * 토스트 표시 (3초 후 자동 닫힘)
    * 새로운 토스트 요청 시 이전 타이머를 초기화하여 노출 시간을 보장합니다.
@@ -49,7 +46,4 @@ export const useUiStore = create((set, get) => ({
 
   // 모달 닫기
   closeModal: () => set({ modal: null }),
-
-  // 전역 로딩 설정
-  setGlobalLoading: (globalLoading) => set({ globalLoading }),
 }))

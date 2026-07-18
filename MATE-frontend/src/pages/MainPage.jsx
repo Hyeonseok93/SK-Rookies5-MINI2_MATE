@@ -71,8 +71,8 @@ const MainPage = () => {
   };
 
   const handleSearchClick = () => {
-    setPage(0); // 검색 시 첫 페이지로 이동
-    fetchPosts({ size: 15 });
+    if (page === 0) fetchPosts({ size: 15 });
+    else setPage(0);
   };
 
   const handleStartProject = () => {

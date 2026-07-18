@@ -7,7 +7,6 @@ import com.rookies5.Backend_MATE.entity.RefreshToken;
 import com.rookies5.Backend_MATE.entity.User;
 import com.rookies5.Backend_MATE.entity.config.TechStack; // 👈 추가
 import com.rookies5.Backend_MATE.exception.BusinessException;
-import com.rookies5.Backend_MATE.exception.EntityNotFoundException;
 import com.rookies5.Backend_MATE.exception.ErrorCode;
 import com.rookies5.Backend_MATE.mapper.UserMapper;
 import com.rookies5.Backend_MATE.repository.RefreshTokenRepository;
@@ -211,62 +210,40 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * 6. 아이디(이메일) 찾기 (공통)
-     */
-    @Transactional(readOnly = true)
-    @Override
-    public String findEmailByPhoneNumber(String phoneNumber) {
-        User user = userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND, phoneNumber));
-        return user.getEmail();
-    }
-
-    /**
-     * 7. 비밀번호 찾기 (Controller의 반환값 + Security의 암호화 저장 통합)
-     */
-    @Override
-    public String resetPassword(String email, String phoneNumber) {
-        User user = userRepository.findByEmailAndPhoneNumber(email, phoneNumber)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_MATCHED));
-
-        String tempPassword = generateTempPassword();
-
-        // 👇 💡 첫 번째 CCTV: 백엔드가 만든 비밀번호 양옆에 대괄호 [ ] 를 씌워서 기록!
-        log.info("🔑 [1. 백엔드 생성] 임시 비밀번호: [{}]", tempPassword);
-
-        // 💡 Security 버전의 필수 로직: DB에 저장할 때는 반드시 암호화!
-        user.updatePassword(passwordEncoder.encode(tempPassword));
-
-        // Controller 버전의 필수 로직: 생성된 임시 비밀번호를 화면에 보여주기 위해 평문 반환
-        return tempPassword;
-    }
-
-    /**
-     * 8. 토큰 재발급 로직 (Access Token 만료 시)
+     * 6. 토큰 재발급 로직 (Access Token 만료 시)
      */
     @Override
     @Transactional
     public AuthResponseDto refresh(String refreshToken) {
+        // Access 토큰을 refresh 엔드포인트에 사용하면 거부 (만료 토큰은 type 파싱 실패 → 아래로 진행)
+        if (jwtTokenProvider.isAccessToken(refreshToken)) {
+            throw new BusinessException(ErrorCode.AUTH_TOKEN_INVALID);
+        }
+
         // 1. DB에 해당 토큰이 존재하는지 검증
         RefreshToken tokenEntity = refreshTokenRepository.findByTokenValue(refreshToken)
-                .orElseThrow(() -> new BusinessException(ErrorCode.AUTH_TOKEN_INVALID)); // "유효하지 않은 토큰입니다" 에러
+                .orElseThrow(() -> new BusinessException(ErrorCode.AUTH_TOKEN_INVALID));
 
         // 2. JWT 자체의 유효성 검증 (만료일이 지났는지 등)
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            // 만료되었다면 DB에서도 지워버림 (다시 로그인하게 유도)
             refreshTokenRepository.delete(tokenEntity);
-            throw new BusinessException(ErrorCode.AUTH_TOKEN_EXPIRED); // "만료된 토큰입니다" 에러
+            throw new BusinessException(ErrorCode.AUTH_TOKEN_EXPIRED);
         }
 
-        // 3. 토큰 주인의 정보 찾기
+        // 3. refresh 타입 클레임 재확인
+        if (!jwtTokenProvider.isRefreshToken(refreshToken)) {
+            throw new BusinessException(ErrorCode.AUTH_TOKEN_INVALID);
+        }
+
+        // 4. 토큰 주인의 정보 찾기
         User user = userRepository.findById(tokenEntity.getUserId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        // 4. 새로운 Access Token 발급 (기존 메서드 활용)
+        // 5. 새로운 Access Token 발급
         Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), null, null);
         String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
 
-        // 5. 결과 반환 (Refresh Token은 그대로 유지하거나, 새로 발급해서 DB 업데이트 할 수도 있음. 여기선 유지하는 방식)
+        // 6. 결과 반환 (응답 shape 유지)
         return AuthResponseDto.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(refreshToken)
@@ -294,21 +271,5 @@ public class AuthServiceImpl implements AuthService {
         // DB에서 해당 유저의 리프레시 토큰을 삭제하여 더 이상 토큰 갱신을 못하게 막음
         refreshTokenRepository.deleteByUserId(user.getId());
         log.info("유저 ID: {} 로그아웃 및 리프레시 토큰 삭제 완료", user.getId());
-    }
-
-    private String generateTempPassword() {
-        char[] charSet = new char[]{
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-                'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-                'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-        };
-        StringBuilder tempPw = new StringBuilder();
-        for (int i = 0; i < 8; i++) {
-            int idx = (int) (charSet.length * Math.random());
-            tempPw.append(charSet[idx]);
-        }
-        return tempPw.toString();
     }
 }

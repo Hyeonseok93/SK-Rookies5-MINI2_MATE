@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
     // 프로젝트 ID로 지원서 목록 찾기
@@ -48,4 +49,22 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Application a SET a.deletedAt = CURRENT_TIMESTAMP WHERE a.applicant.id = :userId AND a.deletedAt IS NULL")
     void softDeleteAllByApplicantId(@Param("userId") Long userId);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE applications SET deleted_at = :deletedAt WHERE project_id = :projectId AND deleted_at IS NULL", nativeQuery = true)
+    int softDeleteAllByProjectIdAt(@Param("projectId") Long projectId, @Param("deletedAt") LocalDateTime deletedAt);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE applications SET deleted_at = :deletedAt WHERE applicant_id = :userId AND deleted_at IS NULL", nativeQuery = true)
+    int softDeleteAllByApplicantIdAt(@Param("userId") Long userId, @Param("deletedAt") LocalDateTime deletedAt);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE applications a SET deleted_at = NULL WHERE project_id = :projectId AND deleted_at = :deletedAt " +
+            "AND EXISTS (SELECT 1 FROM users u WHERE u.user_id = a.applicant_id AND u.deleted_at IS NULL)", nativeQuery = true)
+    int restoreAllByProjectIdDeletedAt(@Param("projectId") Long projectId, @Param("deletedAt") LocalDateTime deletedAt);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE applications a SET deleted_at = NULL WHERE applicant_id = :userId AND deleted_at = :deletedAt " +
+            "AND EXISTS (SELECT 1 FROM projects p WHERE p.project_id = a.project_id AND p.deleted_at IS NULL)", nativeQuery = true)
+    int restoreAllByApplicantIdDeletedAt(@Param("userId") Long userId, @Param("deletedAt") LocalDateTime deletedAt);
 }

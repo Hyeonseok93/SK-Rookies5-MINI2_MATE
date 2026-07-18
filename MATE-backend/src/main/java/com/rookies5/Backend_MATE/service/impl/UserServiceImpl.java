@@ -4,7 +4,6 @@ import com.rookies5.Backend_MATE.dto.request.UserRequestDto;
 import com.rookies5.Backend_MATE.dto.response.ApplicationResponseDto;
 import com.rookies5.Backend_MATE.dto.response.ProjectResponseDto;
 import com.rookies5.Backend_MATE.dto.response.UserResponseDto;
-import com.rookies5.Backend_MATE.entity.Project;
 import com.rookies5.Backend_MATE.entity.User;
 import com.rookies5.Backend_MATE.entity.config.TechStack; // 👈 추가
 import com.rookies5.Backend_MATE.exception.BusinessException;
@@ -15,6 +14,7 @@ import com.rookies5.Backend_MATE.repository.*;
 // import com.rookies5.Backend_MATE.repository.ProjectRepository;     // 나중에 추가 시 주석 해제
 // import com.rookies5.Backend_MATE.repository.ApplicationRepository; // 나중에 추가 시 주석 해제
 import com.rookies5.Backend_MATE.service.ApplicationService;
+import com.rookies5.Backend_MATE.service.DomainDeletionService;
 import com.rookies5.Backend_MATE.service.ProjectService;
 import com.rookies5.Backend_MATE.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -37,12 +37,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ProjectService projectService;
     private final ApplicationService applicationService;
-    private final ProjectRepository projectRepository;
-    private final BoardPostRepository boardPostRepository;
-    private final CommentRepository commentRepository;
-    private final ApplicationRepository applicationRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final ProjectMemberRepository projectMemberRepository;
+    private final DomainDeletionService domainDeletionService;
     private final PasswordEncoder passwordEncoder;
     private final CloudinaryService cloudinaryService;
     private static final String DEFAULT_PROFILE_IMG = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
@@ -128,27 +123,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorCode.AUTH_ACCESS_DENIED);
         }
 
-        // 유저 존재 확인
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND, userId));
-
-        // 이 유저가 방장인 프로젝트들 폭파
-        List<Project> ownedProjects = projectRepository.findAllByOwnerId(userId);
-        for (Project project : ownedProjects) {
-            projectService.deleteProject(project.getId(), userId);
-        }
-
-        // 이 유저가 작성한 게시글, 댓글 등 흔적 지우기
-        boardPostRepository.softDeleteAllByAuthorId(userId);
-        commentRepository.softDeleteAllByAuthorId(userId);
-        applicationRepository.softDeleteAllByApplicantId(userId);
-        projectMemberRepository.softDeleteAllByUserId(userId);
-
-        //refresh 토큰은 DB에서 완전 삭제 (Hard-delete)
-        refreshTokenRepository.deleteByUserId(userId);
-
-        // 유저 테이블의 deleted_at 업데이트 쿼리 실행!
-        userRepository.softDeleteById(userId);
+        domainDeletionService.deleteUser(userId);
 
         log.info("회원 탈퇴 완료 - 유저 ID: {}", userId);
     }

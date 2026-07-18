@@ -67,7 +67,7 @@ public class ProjectMapper {
                 .remainingDays(project.getEndDate() != null ?
                         ChronoUnit.DAYS.between(LocalDate.now(), project.getEndDate()) : null)
                 .isOwner(isOwner)
-                .role(isOwner ? "OWNER" : "MEMBER")
+                .role(isOwner ? "OWNER" : null)
                 .build();
     }
 

@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 // JpaRepository<조종할 Entity 클래스, 그 Entity의 PK 데이터 타입>
@@ -56,8 +55,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT count(*) FROM users", nativeQuery = true)
     long countIncludingDeleted();
 
-    @Query(value = "SELECT * FROM users", nativeQuery = true)
-    List<User> findAllIncludingDeletedList();
+    @Query(value = "SELECT * FROM users WHERE LOWER(nickname) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(email) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY created_at DESC",
+            countQuery = "SELECT count(*) FROM users WHERE LOWER(nickname) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                    "OR LOWER(email) LIKE LOWER(CONCAT('%', :keyword, '%'))",
+            nativeQuery = true)
+    Page<User> searchIncludingDeleted(@Param("keyword") String keyword, Pageable pageable);
 
     // 기본 findByEmail은 @Where 때문에 삭제된 사용자를 못 찾음
     // 💡 Native Query를 써서 삭제된 데이터까지 강제로 뒤집니다.

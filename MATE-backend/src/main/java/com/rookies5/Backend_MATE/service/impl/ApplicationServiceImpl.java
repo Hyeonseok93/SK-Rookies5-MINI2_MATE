@@ -83,8 +83,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional(readOnly = true)
     @Override
     public List<ApplicationResponseDto> getApplicationsByProjectId(Long projectId) {
-        if (!projectRepository.existsById(projectId)) {
-            throw new EntityNotFoundException(ErrorCode.PROJECT_NOT_FOUND, projectId);
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PROJECT_NOT_FOUND, projectId));
+
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        if (!project.getOwner().getId().equals(currentUserId)) {
+            throw new BusinessException(ErrorCode.AUTH_ACCESS_DENIED);
         }
 
         return applicationRepository.findAllByProjectIdWithTechStacks(projectId).stream()
@@ -123,7 +127,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         return applicationRepository.findAllPendingByApplicantIdExcludingDeleted(userId)
                 .stream()
-                .map(ApplicationResponseDto::from)
+                .map(ApplicationMapper::mapToApplicationResponse)
                 .collect(Collectors.toList());
         // 💡 수락(ACCEPTED) 상태가 아닌 모든 지원서(PENDING, REJECTED)를 가져옵니다.
         // 그래야 강퇴당해서 REJECTED로 바뀐 내역이 이 목록에 나타납니다!
@@ -153,7 +157,10 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new BusinessException(ErrorCode.PROJECT_RECRUITMENT_FULL);
         }
 
-        if (projectMemberRepository.existsByProjectIdAndUserId(project.getId(), application.getApplicant().getId())) {
+        ProjectMember member = projectMemberRepository
+                .findByProjectIdAndUserIdIncludingDeleted(project.getId(), application.getApplicant().getId())
+                .orElse(null);
+        if (member != null && !member.isDeleted()) {
             throw new BusinessException(ErrorCode.APPLY_DUPLICATE, "이미 팀원으로 등록된 사용자입니다.");
         }
 
@@ -161,13 +168,17 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.accept();
 
         // 2. project_members 테이블에 팀원으로 추가
-        ProjectMember newMember = ProjectMember.builder()
-                .project(project)
-                .user(application.getApplicant())
-                .role(MemberRole.MEMBER)
-                .position(application.getPosition()) // ✅ 핵심: 지원서의 포지션을 새 멤버 정보로 복사
-                .build();
-        projectMemberRepository.save(newMember);
+        if (member == null) {
+            member = ProjectMember.builder()
+                    .project(project)
+                    .user(application.getApplicant())
+                    .role(MemberRole.MEMBER)
+                    .position(application.getPosition())
+                    .build();
+        } else {
+            member.revive(MemberRole.MEMBER, application.getPosition());
+        }
+        projectMemberRepository.save(member);
 
         // 3. 프로젝트 현재 인원 증가 (정원 충족 시 자동 CLOSED 처리)
         project.addMember();

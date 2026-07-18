@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getApiErrorMessage } from '../utils/apiUtils';
 import { 
   Container, Box, Typography, TextField, Button, Paper, Link, 
   InputAdornment, IconButton, Divider, Grid, Stack 
@@ -49,7 +50,7 @@ const LoginPage = () => {
       }, 1500);
     } catch (err) {
       // axiosInstance에서 reject된 response.data 또는 에러 객체가 err로 넘어옵니다.
-      const errorMessage = err.error?.message || err.message || '로그인 정보를 다시 확인해주세요.';
+      const errorMessage = getApiErrorMessage(err, '로그인 정보를 다시 확인해주세요.');
       showToast(errorMessage, 'error');
     } finally {
       setIsLoading(false);

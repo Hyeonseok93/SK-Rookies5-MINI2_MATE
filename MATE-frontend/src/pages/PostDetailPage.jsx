@@ -21,6 +21,8 @@ import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { POSITION_OPTIONS } from '../constants/techStacks';
 import { getDynamicStatus, getOnOfflineLabel } from '../utils/statusUtils';
+import { getAssetUrl } from '../config/runtime';
+import { getApiErrorMessage, getProjectId } from '../utils/apiUtils';
 
 /**
  * 모집글 상세 페이지 (REST API 설계서 v1.1 반영)
@@ -50,8 +52,8 @@ const PostDetailPage = () => {
           
           // 로그인 상태인 경우 지원 내역 리스트에서 현재 프로젝트 ID 확인
           if (isLoggedIn && myApplies) {
-            const alreadyApplied = myApplies.some(apply => 
-              Number(apply.projectId || apply.id) === Number(id)
+            const alreadyApplied = myApplies.some(
+              (apply) => Number(getProjectId(apply)) === Number(id)
             );
             setHasApplied(alreadyApplied);
           }
@@ -69,8 +71,8 @@ const PostDetailPage = () => {
             replace: true 
           });
         } else {
-          showToast(err.error?.message || '정보를 불러오지 못했습니다.', 'error');
-          navigate('/posts');
+          showToast(getApiErrorMessage(err, '정보를 불러오지 못했습니다.'), 'error');
+          navigate('/');
         }
       } finally {
         setIsLoading(false);
@@ -94,7 +96,7 @@ const PostDetailPage = () => {
           navigate('/');
         } catch (err) {
           console.error("삭제 실패:", err);
-          showToast(err.error?.message || '게시글 삭제 중 오류가 발생했습니다.', 'error');
+          showToast(getApiErrorMessage(err, '게시글 삭제 중 오류가 발생했습니다.'), 'error');
         }
       }
     });
@@ -132,22 +134,12 @@ const PostDetailPage = () => {
   // 본인 글 여부 확인 (서업 flag 또는 ID 비교)
   const isOwner = post.owner === true || (currentUser && Number(currentUser.userId) === Number(post.ownerId));
 
-  // 💡 [이미지 경로 최적화 함수] 
-  // 슬래시가 겹치거나 누락되는 문제를 방지합니다.
-  const getProfileImageUrl = (path) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    const baseUrl = "http://localhost:8080";
-    const formattedPath = path.startsWith('/') ? path : `/${path}`;
-    return `${baseUrl}${formattedPath}`;
-  };
-
   return (
     <Box sx={{ bgcolor: '#F9FAFB', minHeight: '100vh', pt: '100px', pb: 10 }}>
       <Container maxWidth="lg">
         <Breadcrumb items={[
           { label: '홈', path: '/' }, 
-          { label: '프로젝트 탐색', path: '/posts' }, 
+          { label: '프로젝트 탐색', path: '/#new-opportunities' },
           { label: '상세 보기' }
         ]} />
 
@@ -267,7 +259,7 @@ const PostDetailPage = () => {
                 <Typography variant="body2" sx={{ color: '#9CA3AF', fontWeight: 900, mb: 3, letterSpacing: '0.05em' }}>PROJECT OWNER</Typography>
                 <Stack direction="row" spacing={2.5} alignItems="center" sx={{ mb: isOwner ? 3 : 0 }}>
                   <Avatar 
-                    src={getProfileImageUrl(post.ownerProfileImg || post.ownerProfileImageUrl)} 
+                    src={getAssetUrl(post.ownerProfileImageUrl || post.ownerProfileImg)}
                     sx={{ width: 64, height: 64, bgcolor: '#6C63FF', fontSize: '1.5rem', fontWeight: 900 }}
                   >
                     {post.ownerNickname?.[0].toUpperCase()}

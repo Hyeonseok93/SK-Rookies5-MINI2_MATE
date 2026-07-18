@@ -22,6 +22,14 @@ import java.util.Map;
 @Slf4j
 public class AuthController {
 
+    /**
+     * Uniform message for self-service recovery endpoints while no verified
+     * email/SMS delivery channel is configured. Same body for all callers —
+     * no account existence signal.
+     */
+    public static final String SELF_SERVICE_RECOVERY_UNAVAILABLE =
+            "셀프서비스 계정 복구는 현재 이용할 수 없습니다. 관리자에게 문의해 주세요.";
+
     private final AuthService authService;
     // ✅ UserRepository 의존성 완전 제거 (비즈니스 로직은 Service에서만!)
 
@@ -74,32 +82,25 @@ public class AuthController {
     }
 
     /**
-     * 5. 아이디(이메일) 찾기 - 규격 통일
+     * 5. 아이디(이메일) 찾기 — interim privacy-safe stub.
+     * No user lookup or email exposure until a verified delivery channel exists
+     * (avoids registration enumeration / timing side channels).
      */
     @PostMapping("/find-email")
     public SuccessResponse<String> findEmail(@RequestBody Map<String, String> request) {
-        // 💡 1. 프론트엔드가 보낸 택배 박스(JSON) 전체를 그대로 출력해 봅니다.
-        log.info("📦 프론트에서 넘어온 데이터 전체: {}", request);
-
-        String phoneNumber = request.get("phoneNumber");
-
-        // 💡 2. 우리가 'phoneNumber'라는 이름으로 꺼낸 값이 잘 있는지 확인합니다.
-        log.info("📞 추출된 전화번호: {}", phoneNumber);
-
-        String email = authService.findEmailByPhoneNumber(phoneNumber);
-        return new SuccessResponse<>("이메일 찾기에 성공하였습니다.", email);
+        log.info("아이디(이메일) 찾기 요청");
+        return new SuccessResponse<>(SELF_SERVICE_RECOVERY_UNAVAILABLE, "OK");
     }
 
     /**
-     * 6. 비밀번호 재설정 (임시 비번 발급) - 규격 통일
+     * 6. 비밀번호 재설정 — interim privacy-safe stub.
+     * No lookup, password mutation, or session revocation until a verified
+     * delivery channel exists (avoids account-lockout DoS without credential delivery).
      */
     @PostMapping("/reset-password")
-    public SuccessResponse<String> resetPassword(@RequestBody UserRequestDto requestDto) { // 👈 @RequestBody로 변경!
-        log.info("비밀번호 재설정 요청: {}", requestDto.getEmail());
-
-        String newPassword = authService.resetPassword(requestDto.getEmail(), requestDto.getPhoneNumber());
-
-        return new SuccessResponse<>("임시 비밀번호가 발급되었습니다. 로그인 후 비밀번호를 변경해 주세요.", newPassword);
+    public SuccessResponse<String> resetPassword(@RequestBody UserRequestDto requestDto) {
+        log.info("비밀번호 재설정 요청");
+        return new SuccessResponse<>(SELF_SERVICE_RECOVERY_UNAVAILABLE, "OK");
     }
 
     /**
@@ -108,9 +109,6 @@ public class AuthController {
     @PostMapping("/login")
     public SuccessResponse<AuthResponseDto> login(@RequestBody @Valid LoginRequestDto requestDto) {
         log.info("로그인 요청: {}", requestDto.getEmail());
-
-        // 👇 💡 두 번째 CCTV: 프론트가 보낸 비밀번호 양옆에 대괄호 [ ] 를 씌워서 기록!
-        log.info("🔑 [2. 프론트 전송] 로그인 시도 비밀번호: [{}]", requestDto.getPassword());
 
         AuthResponseDto responseDto = authService.login(requestDto.getEmail(), requestDto.getPassword());
         return new SuccessResponse<>("로그인에 성공하였습니다.", responseDto);

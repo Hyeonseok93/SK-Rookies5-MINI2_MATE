@@ -59,6 +59,27 @@ export const handlers = [
     return HttpResponse.json({ success: true, message: "로그아웃이 성공적으로 완료되었습니다.", data: null });
   }),
 
+  http.post('*/api/auth/refresh', async ({ request }) => {
+    const { refreshToken } = await request.json();
+    if (refreshToken !== 'mock-refresh-token') {
+      return HttpResponse.json({ success: false, error: { code: 'AUTH_003', message: '유효하지 않은 리프레시 토큰입니다.' } }, { status: 401 });
+    }
+    return HttpResponse.json({ success: true, data: { accessToken: 'mock-access-token', refreshToken, tokenType: 'Bearer' } });
+  }),
+
+  http.post('*/api/auth/signup', async ({ request }) => {
+    const user = await request.json();
+    const created = { ...user, id: Date.now(), userId: Date.now(), profileImg: null };
+    db.users.push(created);
+    saveDB(db);
+    return HttpResponse.json({ success: true, data: created }, { status: 201 });
+  }),
+
+  http.get('*/api/auth/check-email', ({ request }) => {
+    const email = new URL(request.url).searchParams.get('email');
+    return HttpResponse.json({ success: true, data: { isAvailable: !db.users.some((user) => user.email === email) } });
+  }),
+
   http.get('*/api/auth/check-nickname', ({ request }) => {
     const url = new URL(request.url);
     const nickname = url.searchParams.get('nickname');
@@ -67,27 +88,13 @@ export const handlers = [
   }),
 
   // 아이디(이메일) 찾기 (POST /api/auth/find-email)
-  http.post('*/api/auth/find-email', async ({ request }) => {
-    const { phoneNumber } = await request.json();
-    
-    // DB에서 해당 전화번호를 가진 유저 찾기
-    const user = db.users.find(u => u.phoneNumber === phoneNumber.replace(/-/g, ''));
-
-    if (user) {
-      return HttpResponse.json({
-        success: true,
-        message: "이메일 찾기에 성공하였습니다.",
-        data: user.email // 혹은 설계서에 따라 user.email 자체를 반환
-      });
-    }
-
-    return new HttpResponse(
-      JSON.stringify({ 
-        success: false, 
-        error: { code: 'AUTH_002', message: '해당 휴대폰 번호로 가입된 계정이 없습니다.' } 
-      }), 
-      { status: 404 }
-    );
+  // Interim: uniform privacy-safe response; no lookup / no email exposure.
+  http.post('*/api/auth/find-email', async () => {
+    return HttpResponse.json({
+      success: true,
+      message: "셀프서비스 계정 복구는 현재 이용할 수 없습니다. 관리자에게 문의해 주세요.",
+      data: "OK"
+    });
   }),
 
   // 전화번호 중복/존재 확인 (GET /api/auth/check-phone)
@@ -104,37 +111,13 @@ export const handlers = [
   }),
 
   // 비밀번호 재설정 (POST */api/auth/reset-password)
-  http.post('*/api/auth/reset-password', async ({ request }) => {
-    const { email, phoneNumber } = await request.json();
-    
-    // DB에서 이메일과 전화번호가 모두 일치하는 유저 찾기
-    const user = db.users.find(u => 
-      u.email === email && 
-      u.phoneNumber === phoneNumber.replace(/-/g, '')
-    );
-
-    if (user) {
-      // 임시 비밀번호 생성 (예시)
-      const temporaryPassword = "mate" + Math.random().toString(36).substring(2, 7) + "!";
-      
-      // 실제 DB(Mock)의 비밀번호도 임시 비밀번호로 변경 (로그인 가능하게 함)
-      user.password = temporaryPassword;
-      saveDB(db);
-
-      return HttpResponse.json({ 
-        success: true, 
-        message: "비밀번호 재설정 이메일이 발송되었습니다.",
-        data: temporaryPassword // 화면에 보여줄 임시 비밀번호 전달
-      });
-    }
-
-    return new HttpResponse(
-      JSON.stringify({ 
-        success: false, 
-        error: { code: 'AUTH_003', message: "일치하는 사용자 정보를 찾을 수 없습니다." } 
-      }), 
-      { status: 404 }
-    );
+  // Interim: no password mutation / no delivery claim / no existence signal.
+  http.post('*/api/auth/reset-password', async () => {
+    return HttpResponse.json({ 
+      success: true, 
+      message: "셀프서비스 계정 복구는 현재 이용할 수 없습니다. 관리자에게 문의해 주세요.",
+      data: "OK"
+    });
   }),
 
   // 2. 유저/마이페이지 (Users)
@@ -157,6 +140,22 @@ export const handlers = [
       return HttpResponse.json({ success: true, message: "프로필 정보가 성공적으로 수정되었습니다.", data: db.currentUser });
     }
     return new HttpResponse(null, { status: 404 });
+  }),
+
+  http.patch('*/api/users/profile-image', async () => {
+    const user = db.users.find((item) => item.id === db.currentUser?.id);
+    if (!user) return new HttpResponse(null, { status: 401 });
+    user.profileImg = '/mock-profile.png';
+    saveDB(db);
+    return HttpResponse.json({ success: true, data: user });
+  }),
+
+  http.delete('*/api/users/profile-image', () => {
+    const user = db.users.find((item) => item.id === db.currentUser?.id);
+    if (!user) return new HttpResponse(null, { status: 401 });
+    user.profileImg = null;
+    saveDB(db);
+    return HttpResponse.json({ success: true, data: user });
   }),
 
   http.get('*/api/users/me/posts/owned', () => {
@@ -347,7 +346,7 @@ export const handlers = [
     return HttpResponse.json({ success: true, message: "지원이 완료되었습니다.", data: newApply });
   }),
 
-  http.get('*/api/projects/:projectId/applications', ({ params }) => {
+  http.get('*/api/applications/projects/:projectId', ({ params }) => {
     const projectApplies = db.applies.filter(a => a.projectId === parseInt(params.projectId));
     return HttpResponse.json({ success: true, data: projectApplies });
   }),
@@ -430,6 +429,23 @@ export const handlers = [
     const index = db.comments.findIndex(c => c.id === parseInt(params.id));
     if (index !== -1) { db.comments[index] = { ...db.comments[index], content, createdAt: new Date().toISOString() }; saveDB(db); return HttpResponse.json({ success: true, data: db.comments[index] }); }
     return new HttpResponse(null, { status: 404 });
+  }),
+
+  http.put('*/api/posts/comments/:id', async ({ params, request }) => {
+    const { content } = await request.json();
+    const comment = db.comments.find((item) => item.id === parseInt(params.id));
+    if (!comment) return new HttpResponse(null, { status: 404 });
+    comment.content = content;
+    saveDB(db);
+    return HttpResponse.json({ success: true, data: comment });
+  }),
+
+  http.delete('*/api/posts/comments/:id', ({ params }) => {
+    const comment = db.comments.find((item) => item.id === parseInt(params.id));
+    if (!comment) return new HttpResponse(null, { status: 404 });
+    comment.isDeleted = true;
+    saveDB(db);
+    return HttpResponse.json({ success: true });
   }),
 
   http.delete('*/api/comments/:id', ({ params }) => {

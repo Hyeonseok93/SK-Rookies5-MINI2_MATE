@@ -2,6 +2,8 @@
 
 import { create } from 'zustand'
 import postApi from '../api/postApi'
+import { getApiErrorMessage, getPageContent, getPageInfo } from '../utils/apiUtils'
+import { toApiCategory } from '../utils/statusUtils'
 
 /**
  * 프로젝트 모집글 상태 관리 스토어 (REST API 설계서 v1.1 반영)
@@ -33,10 +35,7 @@ export const usePostStore = create((set, get) => ({
       const currentPage = params.page !== undefined ? params.page : state.page;
       const currentSort = params.sort || state.sort;
 
-      // 2. 카테고리 값 서버 규격(v1.1)으로 변환
-      let targetCategory = '';
-      if (currentCategory === '프로젝트') targetCategory = 'PROJECT';
-      else if (currentCategory === '스터디') targetCategory = 'STUDY';
+      const targetCategory = toApiCategory(currentCategory);
 
       // 3. 최종 요청 파라미터 구성
       // 💡 포인트: ...params를 앞에 두고, 우리가 변환한 대문자 값을 뒤에 배치하여 덮어씌움
@@ -56,7 +55,7 @@ export const usePostStore = create((set, get) => ({
        * 1. response 자체가 배열인 경우 (비페이징)
        * 2. response.content가 배열인 경우 (페이징)
        */
-      const rawPosts = Array.isArray(response) ? response : (response?.content || []);
+      const rawPosts = getPageContent(response);
       
       const mappedPosts = rawPosts.map(post => ({
         ...post,
@@ -65,8 +64,7 @@ export const usePostStore = create((set, get) => ({
       }));
 
       // 페이징 정보 추출 (설계서 v1.1: response.page.totalPages / 일반 Page: response.totalPages)
-      const totalPages = response?.page?.totalPages ?? response?.totalPages ?? (Array.isArray(response) ? 1 : 0);
-      const totalElements = response?.page?.totalElements ?? response?.totalElements ?? rawPosts.length;
+      const { totalPages, totalElements } = getPageInfo(response, rawPosts.length);
 
       set({ 
         posts: mappedPosts, 
@@ -76,29 +74,24 @@ export const usePostStore = create((set, get) => ({
       })
     } catch (error) {
       set({ 
-        error: error.message || '목록을 불러오는 중 오류가 발생했습니다.', 
+        error: getApiErrorMessage(error, '목록을 불러오는 중 오류가 발생했습니다.'),
         isLoading: false 
       })
     }
   },
 
-  // 💡 필터 변경 액션: 상태 변경 후 즉시 fetchPosts를 호출하여 실시간 반영
+  // Fetching is owned by MainPage's effect so each state change issues one request.
   setKeyword: (keyword) => {
     set({ keyword, page: 0 });
-    get().fetchPosts();
   },
   setCategory: (category) => {
     set({ category, page: 0 });
-    // 새 카테고리 값을 직접 전달하여 즉각 반영되도록 함
-    get().fetchPosts({ category, page: 0 }); 
   },
   setSort: (sort) => {
     set({ sort, page: 0 });
-    get().fetchPosts();
   },
   setPage: (page) => {
     set({ page });
-    get().fetchPosts();
   },
 
   // 모집글 상세 가져오기
@@ -118,7 +111,7 @@ export const usePostStore = create((set, get) => ({
       set({ currentPost: mappedDetail, isLoading: false })
     } catch (error) {
       set({ 
-        error: error.message || '상세 정보를 불러오는 데 실패했습니다.', 
+        error: getApiErrorMessage(error, '상세 정보를 불러오는 데 실패했습니다.'),
         isLoading: false 
       })
     }

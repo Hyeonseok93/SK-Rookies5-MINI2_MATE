@@ -17,14 +17,14 @@ INSERT INTO projects (project_id, owner_id, category, title, content, recruit_co
 
 -- [4] 활동 이력 연계 (참여 및 신청)
 -- applications 테이블 (updated_at 추가)
-INSERT INTO applications (project_id, applicant_id, message, status, applied_at, created_at, updated_at)
-VALUES (1, 2, '프론트엔드 작업 도와드리고 싶습니다!', 'ACCEPTED', NOW(), NOW(), NOW()),
-       (2, 3, '백엔드 개발자인데 리액트 기초부터 배우고 싶어요.', 'PENDING', NOW(), NOW(), NOW()),
-       (2, 1, '참여 희망합니다.', 'REJECTED', NOW(), NOW(), NOW());
+INSERT INTO applications (project_id, applicant_id, message, position, status, applied_at, created_at, updated_at)
+VALUES (1, 2, '프론트엔드 작업 도와드리고 싶습니다!', 'FE', 'ACCEPTED', NOW(), NOW(), NOW()),
+       (2, 3, '백엔드 개발자인데 리액트 기초부터 배우고 싶어요.', 'BE', 'PENDING', NOW(), NOW(), NOW()),
+       (2, 1, '참여 희망합니다.', 'BE', 'REJECTED', NOW(), NOW(), NOW());
 
 -- project_members 테이블 (updated_at 추가)
-INSERT INTO project_members (project_id, user_id, role, joined_at, created_at, updated_at)
-VALUES (1, 2, 'MEMBER', NOW(), NOW(), NOW());
+INSERT INTO project_members (project_id, user_id, role, position, joined_at, created_at, updated_at)
+VALUES (1, 2, 'MEMBER', 'FE', NOW(), NOW(), NOW());
 
 -- 관리자 계정 생성 (updated_at이 NULL이었던 부분을 NOW()로 수정)
 --INSERT INTO users (

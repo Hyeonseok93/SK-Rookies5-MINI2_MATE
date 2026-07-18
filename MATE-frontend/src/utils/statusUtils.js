@@ -7,6 +7,19 @@ export const ON_OFFLINE_MAP = {
   BOTH: '온/오프라인'
 };
 
+export const CATEGORY_MAP = {
+  전체: '',
+  프로젝트: 'PROJECT',
+  스터디: 'STUDY',
+};
+
+export const toApiCategory = (value) => CATEGORY_MAP[value] ?? value ?? '';
+
+export const toApiOnOffline = (value) => {
+  const match = Object.entries(ON_OFFLINE_MAP).find(([, label]) => label === value);
+  return match?.[0] ?? value ?? 'ONLINE';
+};
+
 /**
  * 온/오프라인 값을 한글로 변환합니다.
  * @param {string} value - 'ONLINE' | 'OFFLINE' | 'BOTH'

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getApiErrorMessage } from '../utils/apiUtils';
 import Breadcrumb from '../component/common/Breadcrumb.jsx';
 import { 
   Container, Box, Typography, TextField, Button, Paper, 
@@ -43,15 +44,14 @@ const FindEmailPage = () => {
     
     try {
       const cleaned = phoneNumber.replace(/-/g, '');
-      // authApi 사용 및 axiosInstance의 data 반환 규격 적용
-      // 설계서 v1.1: data에 이메일 문자열이 직접 담겨옴
+      // Interim: endpoint is privacy-safe and does not reveal registration or email.
       const response = await authApi.findEmail(cleaned);
       
-      if (response) {
-        setResult(response);
+      if (response !== undefined && response !== null) {
+        setResult(true);
       }
     } catch (err) {
-      const errorMessage = err.error?.message || err.message || '오류가 발생했습니다. 다시 시도해주세요.';
+      const errorMessage = getApiErrorMessage(err, '요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.');
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -88,7 +88,7 @@ const FindEmailPage = () => {
             아이디 찾기
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary', mb: 6, fontWeight: 500 }}>
-            가입 시 등록한 휴대폰 번호를 입력해 주세요.
+            자동 아이디 찾기는 현재 이용할 수 없습니다. 관리자에게 문의해 주세요.
           </Typography>
 
           {!result ? (
@@ -113,7 +113,7 @@ const FindEmailPage = () => {
                   boxShadow: '0 12px 24px rgba(108,99,255,0.2)', mb: 4 
                 }}
               >
-                {isLoading ? '조회 중...' : '이메일 찾기'}
+                {isLoading ? '처리 중...' : '안내 확인하기'}
               </Button>
             </Box>
           ) : (
@@ -121,12 +121,16 @@ const FindEmailPage = () => {
               <Box sx={{ 
                 p: 5, bgcolor: '#F5F6FF', borderRadius: 6, border: '1px solid #E0E7FF', mb: 4 
               }}>
-                <Typography sx={{ fontSize: 48, mb: 1 }}>✅</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 800, color: '#6366F1', mb: 2 }}>
-                  가입된 이메일을 찾았습니다
+                  자동 아이디 찾기를 이용할 수 없습니다
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#111827', letterSpacing: 0.5 }}>
-                  {result}
+                <Typography variant="body1" sx={{ fontWeight: 600, color: '#374151', mb: 3, lineHeight: 1.6 }}>
+                  현재 검증된 전달 수단이 연결되어 있지 않아
+                  <br />
+                  셀프서비스로 가입 이메일을 안내할 수 없습니다.
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#6B7280', fontWeight: 600, display: 'block' }}>
+                  계정 확인이 필요하면 관리자에게 문의해 주세요. 이메일은 표시·발송되지 않습니다.
                 </Typography>
               </Box>
 

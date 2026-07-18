@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getApiErrorMessage } from '../utils/apiUtils';
 import { 
   Container, Box, Typography, TextField, Button, Paper, Link, 
   MenuItem, Autocomplete, Chip, Divider, Stack, IconButton, InputAdornment 
@@ -79,7 +80,7 @@ const RegisterPage = () => {
         setIsEmailChecked(false);
       }
     } catch (err) {
-      showToast(err.error?.message || '이메일 중복 확인 중 오류가 발생했습니다.', 'error');
+      showToast(getApiErrorMessage(err, '이메일 중복 확인 중 오류가 발생했습니다.'), 'error');
     }
   };
 
@@ -100,7 +101,7 @@ const RegisterPage = () => {
         setIsNicknameChecked(false);
       }
     } catch (err) {
-      showToast(err.error?.message || '닉네임 중복 확인 중 오류가 발생했습니다.', 'error');
+      showToast(getApiErrorMessage(err, '닉네임 중복 확인 중 오류가 발생했습니다.'), 'error');
     }
   };
 
@@ -121,7 +122,7 @@ const RegisterPage = () => {
         setIsPhoneChecked(false);
       }
     } catch (err) {
-      showToast(err.error?.message || '전화번호 중복 확인 중 오류가 발생했습니다.', 'error');
+      showToast(getApiErrorMessage(err, '전화번호 중복 확인 중 오류가 발생했습니다.'), 'error');
     }
   };
 
@@ -191,7 +192,7 @@ const RegisterPage = () => {
       navigate('/login');
     } catch (err) {
       console.error('회원가입 에러:', err);
-      const errorMessage = err.error?.message || '회원가입 처리 중 오류가 발생했습니다.';
+      const errorMessage = getApiErrorMessage(err, '회원가입 처리 중 오류가 발생했습니다.');
       showToast(errorMessage, 'error');
     } finally {
       setIsLoading(false);

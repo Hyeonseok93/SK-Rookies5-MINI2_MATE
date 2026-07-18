@@ -1,6 +1,7 @@
 package com.rookies5.Backend_MATE.service;
 
 import com.rookies5.Backend_MATE.dto.request.ProjectRequestDto;
+import com.rookies5.Backend_MATE.dto.request.ProjectReopenRequestDto;
 import com.rookies5.Backend_MATE.dto.response.ProjectResponseDto;
 
 import org.springframework.data.domain.Page;
@@ -22,7 +23,7 @@ public interface ProjectService {
      * @param projectId 조회할 프로젝트 ID
      * @return 프로젝트 상세 데이터
      */
-    ProjectResponseDto getProjectById(Long projectId);
+    ProjectResponseDto getProjectById(Long projectId, Long userId);
 
     /**
      * 전체 프로젝트 목록 조회 (페이징 지원)
@@ -67,5 +68,5 @@ public interface ProjectService {
     /**
      * 프로젝트 재모집 시작 (OWNER 전용)
      */
-    ProjectResponseDto reopenProject(Long projectId, Long userId);
+    ProjectResponseDto reopenProject(Long projectId, Long userId, ProjectReopenRequestDto requestDto);
 }

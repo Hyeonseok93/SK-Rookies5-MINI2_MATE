@@ -64,7 +64,8 @@
         <a href="/admin/logs">📜 활동로그</a>
 
         <div style="margin-top:50px;">
-            <form action="/admin/logout" method="post" style="display:inline;">
+            <form th:action="@{/admin/logout}" method="post" style="display:inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <button type="submit"
                         style="background:#6366f1; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
                     🚪 로그아웃
@@ -110,6 +111,7 @@
 
                             <form th:if="${!u.deleted}" th:action="@{/admin/users/delete/{id}(id=${u.id})}"
                                   method="post" style="display:inline;" onsubmit="return confirm('삭제하시겠습니까?');">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                 <input type="hidden" name="userPage" th:value="${users.number}"/>
                                 <input type="hidden" name="redirectPage" value="dashboard"/>
                                 <input type="hidden" name="keyword" th:value="${keyword}"/>
@@ -118,6 +120,7 @@
 
                             <form th:if="${u.deleted}" th:action="@{/admin/users/restore/{id}(id=${u.id})}"
                                   method="post" style="display:inline;" onsubmit="return confirm('복구하시겠습니까?');">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                 <input type="hidden" name="userPage" th:value="${users.number}"/>
                                 <input type="hidden" name="redirectPage" value="dashboard"/>
                                 <input type="hidden" name="keyword" th:value="${keyword}"/>
@@ -193,6 +196,7 @@
 
                             <form th:if="${!p.deleted}" th:action="@{/admin/projects/delete/{id}(id=${p.id})}"
                                   method="post" style="display:inline;" onsubmit="return confirm('삭제하시겠습니까?');">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                 <input type="hidden" name="projectPage" th:value="${projects.number}"/>
                                 <input type="hidden" name="redirectPage" value="dashboard"/>
                                 <input type="hidden" name="keyword" th:value="${keyword}"/>
@@ -201,6 +205,7 @@
 
                             <form th:if="${p.deleted}" th:action="@{/admin/projects/restore/{id}(id=${p.id})}"
                                   method="post" style="display:inline;" onsubmit="return confirm('복구하시겠습니까?');">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                 <input type="hidden" name="projectPage" th:value="${projects.number}"/>
                                 <input type="hidden" name="redirectPage" value="dashboard"/>
                                 <input type="hidden" name="keyword" th:value="${keyword}"/>
@@ -253,19 +258,26 @@ background:white; padding:20px; border-radius:10px; z-index:1000; width:400px;">
 background:rgba(0,0,0,0.5);" onclick="closeProjectModal()"></div>
 
 <script>
+    function appendSafeLine(container, label, value) {
+        const p = document.createElement('p');
+        p.appendChild(document.createTextNode(label + ': '));
+        p.appendChild(document.createTextNode(value == null || value === '' ? '-' : String(value)));
+        container.appendChild(p);
+    }
+
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('btn-detail')) {
             fetch(`/admin/users/${e.target.dataset.id}`)
                 .then(res => res.json())
                 .then(user => {
-                    document.getElementById('modalContent').innerHTML = `
-                        <p>닉네임: ${user.nickname}</p>
-                        <p>이메일: ${user.email}</p>
-                        <p>전화번호: ${user.phoneNumber || '-'}</p>
-                        <p>포지션: ${user.position}</p>
-                        <p>기술 스택: ${user.techStacks?.join(', ') || '-'}</p>
-                        <p>가입일: ${new Date(user.createdAt).toLocaleString()}</p>
-                    `;
+                    const container = document.getElementById('modalContent');
+                    container.replaceChildren();
+                    appendSafeLine(container, '닉네임', user.nickname);
+                    appendSafeLine(container, '이메일', user.email);
+                    appendSafeLine(container, '전화번호', user.phoneNumber || '-');
+                    appendSafeLine(container, '포지션', user.position);
+                    appendSafeLine(container, '기술 스택', (user.techStacks && user.techStacks.length) ? user.techStacks.join(', ') : '-');
+                    appendSafeLine(container, '가입일', user.createdAt ? new Date(user.createdAt).toLocaleString() : '-');
                     openModal();
                 });
         }
@@ -273,16 +285,16 @@ background:rgba(0,0,0,0.5);" onclick="closeProjectModal()"></div>
             fetch(`/admin/projects/${e.target.dataset.id}`)
                 .then(res => res.json())
                 .then(p => {
-                    document.getElementById('projectModalContent').innerHTML = `
-                        <p>제목: ${p.title}</p>
-                        <p>작성자: ${p.ownerNickname || '알 수 없음'}</p>
-                        <p>카테고리: ${p.category}</p>
-                        <p>모집 인원: ${p.recruitCount}명</p>
-                        <p>신청자 수: ${p.currentCount}명</p>
-                        <p>내용: ${p.content}</p>
-                        <p>생성일: ${p.createdAt}</p>
-                        <p>마감일: ${p.endDate}</p>
-                    `;
+                    const container = document.getElementById('projectModalContent');
+                    container.replaceChildren();
+                    appendSafeLine(container, '제목', p.title);
+                    appendSafeLine(container, '작성자', p.ownerNickname || '알 수 없음');
+                    appendSafeLine(container, '카테고리', p.category);
+                    appendSafeLine(container, '모집 인원', (p.recruitCount != null ? p.recruitCount + '명' : '-'));
+                    appendSafeLine(container, '신청자 수', (p.currentCount != null ? p.currentCount + '명' : '-'));
+                    appendSafeLine(container, '내용', p.content);
+                    appendSafeLine(container, '생성일', p.createdAt);
+                    appendSafeLine(container, '마감일', p.endDate);
                     openProjectModal();
                 });
         }

@@ -32,23 +32,13 @@ public interface AuthService {
     boolean isNicknameAvailable(String nickname, Long userId);
 
     /**
-     * 6. 아이디(이메일) 찾기
-     */
-    String findEmailByPhoneNumber(String phoneNumber);
-
-    /**
-     * 7. 비밀번호 재설정 (임시 비밀번호 발급)
-     */
-    String resetPassword(String email, String phoneNumber);
-
-    /**
-     * 8. 로그아웃
+     * 6. 로그아웃
      * ✅ userId → email 로 변경 (Controller에서 DB 조회 제거)
      */
     void logout(String email);
 
     /**
-     * 9. 토큰 재발급
+     * 7. 토큰 재발급
      */
     AuthResponseDto refresh(String refreshToken);
 }

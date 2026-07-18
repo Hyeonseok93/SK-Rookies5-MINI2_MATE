@@ -1,12 +1,9 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-// 설계서 규격인 /api가 중복되지 않도록 처리
-const API_URL = BASE_URL.endsWith('/api') ? BASE_URL : `${BASE_URL.replace(/\/$/, '')}/api`;
+import { API_BASE_URL } from '../config/runtime';
 
 const axiosInstance = axios.create({
-  baseURL: API_URL,
+  baseURL: API_BASE_URL,
   timeout: 5000,
   withCredentials: true,
 });
@@ -74,7 +71,7 @@ axiosInstance.interceptors.response.use(
       if (refreshToken) {
         try {
           // 중요: 무한 루프 방지를 위해 axiosInstance 대신 axios 원본 사용
-          const refreshRes = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
+          const refreshRes = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
           
           if (refreshRes.data.success) {
             const { accessToken: newAccessToken, refreshToken: newRefreshToken } = refreshRes.data.data;

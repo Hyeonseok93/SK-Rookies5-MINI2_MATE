@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface AdminLogRepository extends JpaRepository<AdminLog, Long> {
@@ -14,5 +16,7 @@ public interface AdminLogRepository extends JpaRepository<AdminLog, Long> {
     long count(); // 전체 로그 개수
 
     AdminLog findTopByOrderByCreatedAtAsc();
+
+    Page<AdminLog> findByActionContainingIgnoreCase(String keyword, Pageable pageable);
 
 }

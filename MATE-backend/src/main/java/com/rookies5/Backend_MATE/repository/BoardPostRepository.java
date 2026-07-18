@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
+import java.time.LocalDateTime;
 
 public interface BoardPostRepository extends JpaRepository<BoardPost, Long> {
     // 프로젝트 ID로 게시글 찾기 (페이징 지원)
@@ -41,5 +42,23 @@ public interface BoardPostRepository extends JpaRepository<BoardPost, Long> {
     @Query("UPDATE BoardPost b SET b.deletedAt = CURRENT_TIMESTAMP " +
             "WHERE b.project.id = :projectId AND b.author.id = :authorId AND b.deletedAt IS NULL")
     void softDeleteAllByProjectIdAndAuthorId(@Param("projectId") Long projectId, @Param("authorId") Long authorId);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE board_posts SET deleted_at = :deletedAt WHERE project_id = :projectId AND deleted_at IS NULL", nativeQuery = true)
+    int softDeleteAllByProjectIdAt(@Param("projectId") Long projectId, @Param("deletedAt") LocalDateTime deletedAt);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE board_posts SET deleted_at = :deletedAt WHERE author_id = :userId AND deleted_at IS NULL", nativeQuery = true)
+    int softDeleteAllByAuthorIdAt(@Param("userId") Long userId, @Param("deletedAt") LocalDateTime deletedAt);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE board_posts b SET deleted_at = NULL WHERE project_id = :projectId AND deleted_at = :deletedAt " +
+            "AND EXISTS (SELECT 1 FROM users u WHERE u.user_id = b.author_id AND u.deleted_at IS NULL)", nativeQuery = true)
+    int restoreAllByProjectIdDeletedAt(@Param("projectId") Long projectId, @Param("deletedAt") LocalDateTime deletedAt);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE board_posts b SET deleted_at = NULL WHERE author_id = :userId AND deleted_at = :deletedAt " +
+            "AND EXISTS (SELECT 1 FROM projects p WHERE p.project_id = b.project_id AND p.deleted_at IS NULL)", nativeQuery = true)
+    int restoreAllByAuthorIdDeletedAt(@Param("userId") Long userId, @Param("deletedAt") LocalDateTime deletedAt);
 
 }

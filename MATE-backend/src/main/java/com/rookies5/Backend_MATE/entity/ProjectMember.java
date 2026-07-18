@@ -46,4 +46,10 @@ public class ProjectMember extends BaseEntity{
     @CreatedDate
     @Column(name = "joined_at", nullable = false, updatable = false)
     private LocalDateTime joinedAt;
+
+    public void revive(MemberRole role, Position position) {
+        restore();
+        this.role = role;
+        this.position = position;
+    }
 }

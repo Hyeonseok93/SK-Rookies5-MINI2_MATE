@@ -32,6 +32,10 @@ public abstract class BaseEntity {
         this.deletedAt = LocalDateTime.now();
     }
 
+    public void restore() {
+        this.deletedAt = null;
+    }
+
     // 삭제 여부 확인용 (편의 기능)
     public boolean isDeleted() {
         return this.deletedAt != null;

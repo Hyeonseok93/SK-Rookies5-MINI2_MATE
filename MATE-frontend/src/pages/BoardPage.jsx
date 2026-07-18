@@ -2,15 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Container, Box, Typography, Paper, Divider, 
-  Stack, Chip, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow,
+  Stack, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, LinearProgress, IconButton, Menu, MenuItem, Button
 } from '@mui/material';
 
 // Icons
-import CreateIcon from '@mui/icons-material/Create';
-import ForumIcon from '@mui/icons-material/Forum';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -21,27 +18,18 @@ import DeleteIcon from '@mui/icons-material/Delete';
 // 공통 컴포넌트
 import Breadcrumb from '../component/common/Breadcrumb';
 import CustomButton from '../component/common/Button';
-import Pagination from '../component/common/Pagination';
 import CommentItem from '../component/common/CommentItem';
 import Avatar from '../component/common/Avatar';
 
 // 상수
-import { POSITION_OPTIONS } from '../constants/techStacks';
-
 // API & Store
 import boardApi from '../api/boardApi';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
-
-// 💡 [이미지 경로 최적화 함수]
-// 슬래시가 겹치거나 누락되는 문제를 방지합니다.
-const getProfileImageUrl = (path) => {
-  if (!path) return null;
-  if (path.startsWith('http')) return path;
-  const baseUrl = "http://localhost:8080";
-  const formattedPath = path.startsWith('/') ? path : `/${path}`;
-  return `${baseUrl}${formattedPath}`;
-};
+import { formatDate, getApiErrorMessage, getPageContent, getPageInfo } from '../utils/apiUtils';
+import { getAssetUrl } from '../config/runtime';
+import BoardPostList from '../features/board/BoardPostList';
+import BoardMemberSidebar from '../features/board/BoardMemberSidebar';
 
 const BoardPage = () => {
   const { id } = useParams();
@@ -82,38 +70,21 @@ const BoardPage = () => {
           setProjectInfo(prev => ({ ...prev, members: membersRes || [] }));
         } catch (err) {
           console.error("Kick member error:", err);
-          showToast(err.error?.message || '멤버 제외에 실패했습니다.', 'error');
+          showToast(getApiErrorMessage(err, '멤버 제외에 실패했습니다.'), 'error');
         }
       }
     });
   };
 
-  // 날짜 포맷팅 유틸리티
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    return dateStr.split('T')[0].replace(/-/g, '.');
-  };
-
   const fetchPosts = useCallback(async (page) => {
     try {
       const response = await boardApi.getBoardPosts(id, page, 10);
-      const postData = response.data || response.content || (Array.isArray(response) ? response : []);
+      const postData = getPageContent(response);
       setPosts(postData);
-
-      if (response.page) {
-        setPageInfo({
-          totalPages: response.page.totalPages || 0,
-          totalElements: response.page.totalElements || 0
-        });
-      } else {
-        setPageInfo({
-          totalPages: 1,
-          totalElements: postData.length
-        });
-      }
+      setPageInfo(getPageInfo(response, postData.length));
     } catch (err) {
       console.error("Fetch posts error:", err);
-      showToast(err.error?.message || '게시글 목록을 불러오지 못했습니다.', 'error');
+      showToast(getApiErrorMessage(err, '게시글 목록을 불러오지 못했습니다.'), 'error');
     }
   }, [id, showToast]);
 
@@ -127,15 +98,9 @@ const BoardPage = () => {
           boardApi.getProjectMembers(id)
         ]);
 
-        const postData = postsRes.data || postsRes.content || (Array.isArray(postsRes) ? postsRes : []);
+        const postData = getPageContent(postsRes);
         setPosts(postData);
-        
-        if (postsRes.page) {
-          setPageInfo({
-            totalPages: postsRes.page.totalPages || 0,
-            totalElements: postsRes.page.totalElements || 0
-          });
-        }
+        setPageInfo(getPageInfo(postsRes, postData.length));
 
         if (projectRes) {
           setProjectInfo({
@@ -145,7 +110,7 @@ const BoardPage = () => {
         }
       } catch (err) {
         console.error("Init board error:", err);
-        showToast(err.error?.message || '데이터를 불러오는데 실패했습니다.', 'error');
+        showToast(getApiErrorMessage(err, '데이터를 불러오는데 실패했습니다.'), 'error');
       } finally {
         setIsLoading(false);
       }
@@ -171,7 +136,7 @@ const BoardPage = () => {
       }
     } catch (err) {
       console.error("Fetch post detail error:", err);
-      showToast(err.error?.message || '상세 내용을 불러오지 못했습니다.', 'error');
+      showToast(getApiErrorMessage(err, '상세 내용을 불러오지 못했습니다.'), 'error');
     }
   };
 
@@ -206,7 +171,7 @@ const BoardPage = () => {
       fetchPosts(isEditing ? currentPage : 0);
     } catch (err) {
       console.error("Save post error:", err);
-      showToast(err.error?.message || '처리에 실패했습니다.', 'error');
+      showToast(getApiErrorMessage(err, '처리에 실패했습니다.'), 'error');
     }
   };
 
@@ -225,7 +190,7 @@ const BoardPage = () => {
           fetchPosts(currentPage);
         } catch (err) {
           console.error("Delete post error:", err);
-          showToast(err.error?.message || '삭제에 실패했습니다.', 'error');
+          showToast(getApiErrorMessage(err, '삭제에 실패했습니다.'), 'error');
         }
       }
     });
@@ -241,7 +206,7 @@ const BoardPage = () => {
       showToast('댓글이 등록되었습니다.', 'success');
     } catch (err) {
       console.error("Create comment error:", err);
-      showToast(err.error?.message || '댓글 등록 실패', 'error');
+      showToast(getApiErrorMessage(err, '댓글 등록 실패'), 'error');
     }
   };
 
@@ -261,7 +226,7 @@ const BoardPage = () => {
       showToast('댓글이 수정되었습니다.', 'success');
     } catch (err) {
       console.error("Update comment error:", err);
-      showToast(err.error?.message || '수정 실패', 'error');
+      showToast(getApiErrorMessage(err, '수정 실패'), 'error');
     }
   };
 
@@ -279,7 +244,7 @@ const BoardPage = () => {
           showToast('댓글이 삭제되었습니다.', 'success');
         } catch (err) {
           console.error("Delete comment error:", err);
-          showToast(err.error?.message || '삭제 실패', 'error');
+          showToast(getApiErrorMessage(err, '삭제 실패'), 'error');
         }
       }
     });
@@ -293,7 +258,7 @@ const BoardPage = () => {
   return (
     <Box sx={{ bgcolor: '#F9FAFB', minHeight: '100vh', pt: '100px', pb: 10 }}>
       <Container maxWidth="lg">
-        <Breadcrumb items={[{ label: '홈', path: '/' }, { label: '프로젝트 탐색', path: `/posts` }, { label: projectInfo.title, path: `/posts/${id}` }, { label: '전용 게시판' }]} />
+        <Breadcrumb items={[{ label: '홈', path: '/' }, { label: '프로젝트 탐색', path: '/#new-opportunities' }, { label: projectInfo.title, path: `/posts/${id}` }, { label: '전용 게시판' }]} />
 
         <Paper elevation={0} sx={{ p: 4, mt: 2, mb: 4, borderRadius: 5, border: '1px solid #EEEEEE', background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F9FF 100%)', display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, gap: 2 }}>
           <Box><Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}><InfoOutlinedIcon sx={{ color: 'primary.main', fontSize: 20 }} /><Typography variant="caption" sx={{ fontWeight: 900, color: 'primary.main', letterSpacing: '0.1em' }}>PROJECT DASHBOARD</Typography></Stack><Typography variant="h4" sx={{ fontWeight: 900, color: '#111827', letterSpacing: '-0.02em' }}>{projectInfo.title}</Typography></Box>
@@ -302,71 +267,11 @@ const BoardPage = () => {
 
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 4 }}>
           <Box sx={{ flex: 8.5 }}>
-            <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, borderRadius: 5, border: '1px solid #EEEEEE', minHeight: '600px' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 5 }}>
-                <Box><Typography variant="h5" sx={{ fontWeight: 900, mb: 1, color: '#111827', display: 'flex', alignItems: 'center', gap: 1.5 }}><ForumIcon color="primary" /> 팀 커뮤니케이션</Typography><Typography variant="body2" sx={{ color: '#6B7280', fontWeight: 500 }}>팀원들과 아이디어를 공유하고 프로젝트 현황을 기록하세요.</Typography></Box>
-                <CustomButton variant="contained" startIcon={<CreateIcon />} onClick={handleOpenWrite} sx={{ borderRadius: 4, px: 4, height: 48 }}>새 글 작성하기</CustomButton>
-              </Box>
-              <TableContainer>
-                <Table sx={{ minWidth: 650 }}>
-                  <TableHead><TableRow sx={{ bgcolor: '#F9FAFB' }}><TableCell sx={{ fontWeight: 800, color: '#6B7280', py: 2 }}>구분</TableCell><TableCell sx={{ fontWeight: 800, color: '#6B7280' }}>제목</TableCell><TableCell sx={{ fontWeight: 800, color: '#6B7280' }}>작성자</TableCell><TableCell sx={{ fontWeight: 800, color: '#6B7280' }}>작성일</TableCell><TableCell sx={{ fontWeight: 800, color: '#6B7280', textAlign: 'center' }}>조회</TableCell></TableRow></TableHead>
-                  <TableBody>
-                    {posts && posts.length > 0 ? ( posts.map((post) => ( <TableRow key={post.id} hover onClick={() => handlePostClick(post)} sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#F0F2FF !important' } }}><TableCell sx={{ py: 2.5 }}><Chip label={post.type === 'NOTICE' ? '공지' : post.type === 'QUESTION' ? '질문' : '일반'} size="small" sx={{ bgcolor: post.type === 'NOTICE' ? '#FFFBEB' : (post.type === 'QUESTION' ? '#EFF6FF' : '#F3F4F6'), color: post.type === 'NOTICE' ? '#D97706' : (post.type === 'QUESTION' ? '#2563EB' : '#4B5563'), fontWeight: 900, borderRadius: 1.5 }} /></TableCell><TableCell sx={{ fontWeight: 700, fontSize: '1rem', color: '#1F2937' }}>{post.title}</TableCell>
-                    <TableCell><Stack direction="row" spacing={1} alignItems="center">
-                      {/* 💡 작성자의 프로필 이미지 URL 변환 적용 */}
-                      <Avatar name={post.authorNickname} size="sm" src={getProfileImageUrl(post.authorProfileImg || post.authorProfileImageUrl)} />
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{post.authorNickname}</Typography></Stack></TableCell>
-                    <TableCell sx={{ color: '#9CA3AF', fontSize: '0.85rem' }}>{formatDate(post.createdAt)}</TableCell><TableCell sx={{ textAlign: 'center' }}><Typography variant="caption" sx={{ color: '#9CA3AF', fontWeight: 600 }}>{post.viewCount || 0}</Typography></TableCell></TableRow> )) ) : ( <TableRow><TableCell colSpan={5} sx={{ py: 10, textAlign: 'center', color: '#9CA3AF' }}>등록된 게시글이 없습니다.</TableCell></TableRow> )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}><Pagination page={currentPage} totalPages={pageInfo.totalPages} onPageChange={handlePageChange} /></Box>
-            </Paper>
+            <BoardPostList posts={posts} page={currentPage} totalPages={pageInfo.totalPages} onPageChange={handlePageChange} onOpenPost={handlePostClick} onWrite={handleOpenWrite} />
           </Box>
 
           <Box sx={{ flex: 3.5 }}>
-            <Paper elevation={0} sx={{ p: 4, borderRadius: 5, border: '1px solid #EEEEEE', position: 'sticky', top: '100px' }}>
-              <Typography variant="caption" sx={{ fontWeight: 900, color: '#D1D5DB', display: 'block', mb: 3, letterSpacing: '0.1em' }}>TEAM MEMBERS ({projectInfo.members.length})</Typography>
-              <Stack spacing={2.5}>
-                {[...projectInfo.members]
-                  .sort((a, b) => {
-                    // 1. OWNER 우선 정렬
-                    if (a.role === 'OWNER') return -1;
-                    if (b.role === 'OWNER') return 1;
-                    // 2. 그 외에는 닉네임 가나다순 정렬
-                    return a.nickname.localeCompare(b.nickname);
-                  })
-                  .map((member) => (
-                  <Box key={member.nickname} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      {/* 💡 팀 멤버의 프로필 이미지 URL 변환 적용 */}
-                      <Avatar name={member.nickname} size="md" src={getProfileImageUrl(member.profileImg || member.profileImageUrl)} />
-                      <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#111827' }}>{member.nickname}</Typography>
-                        <Typography variant="caption" sx={{ color: '#9CA3AF', fontWeight: 600 }}>
-                          {POSITION_OPTIONS.find(p => p.value === member.position)?.label || member.position}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      {member.role === 'OWNER' ? (
-                        <Chip label="OWNER" size="small" sx={{ bgcolor: '#FFFBEB', color: '#B45309', fontWeight: 900, fontSize: '0.65rem', borderRadius: 1 }} />
-                      ) : (
-                        isProjectOwner && (
-                          <IconButton 
-                            size="small" 
-                            onClick={() => handleKickMember(member)}
-                            sx={{ color: '#EF4444', bgcolor: '#FEF2F2', '&:hover': { bgcolor: '#FEE2E2' }, borderRadius: 1.5 }}
-                          >
-                            <DeleteIcon sx={{ fontSize: 18 }} />
-                          </IconButton>
-                        )
-                      )}
-                    </Stack>
-                  </Box>
-                ))}
-              </Stack>
-            </Paper>
+            <BoardMemberSidebar members={projectInfo.members} canManage={isProjectOwner} onKick={handleKickMember} />
           </Box>
         </Box>
       </Container>
@@ -412,7 +317,7 @@ const BoardPage = () => {
               </Stack>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ pb: 4, borderBottom: '1px solid #F3F4F6' }}>
                 {/* 💡 상세 모달 내부 작성자의 프로필 이미지 URL 변환 적용 */}
-                <Avatar name={selectedPost.authorNickname} size="lg" src={getProfileImageUrl(selectedPost.authorProfileImg || selectedPost.authorProfileImageUrl)} />
+                <Avatar name={selectedPost.authorNickname} size="lg" src={getAssetUrl(selectedPost.authorProfileImageUrl || selectedPost.authorProfileImg)} />
                 <Box sx={{ flex: 1 }}><Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#111827' }}>{selectedPost.authorNickname}</Typography><Typography variant="caption" sx={{ color: '#9CA3AF', fontWeight: 600 }}>{formatDate(selectedPost.createdAt)} · 조회 {selectedPost.viewCount || 0}</Typography></Box>
               </Stack>
             </Box>

@@ -51,7 +51,8 @@
         <a href="/admin/logs">📜 활동로그</a>
 
         <div style="margin-top:50px;">
-            <form action="/admin/logout" method="post" style="display:inline;">
+            <form th:action="@{/admin/logout}" method="post" style="display:inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <button type="submit" style="background:#6366f1; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
                     🚪 로그아웃
                 </button>

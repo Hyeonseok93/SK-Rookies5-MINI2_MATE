@@ -51,6 +51,7 @@ public enum ErrorCode {
     VALIDATION_ERROR("VALID_001", "입력값이 올바르지 않습니다", HttpStatus.BAD_REQUEST),
     REQUIRED_FIELD_MISSING("VALID_002", "필수 항목이 누락되었습니다", HttpStatus.BAD_REQUEST),
     INVALID_PHONE_FORMAT("VALID_003", "전화번호 형식이 올바르지 않습니다 (숫자 11자)", HttpStatus.BAD_REQUEST),
+    DATA_INTEGRITY_VIOLATION("VALID_004", "이미 존재하거나 참조 중인 데이터입니다", HttpStatus.CONFLICT),
 
 
     // 서버 오류 (500)

@@ -78,7 +78,7 @@ public class Project extends BaseEntity {
 
     public void addMember() {
         if (this.currentCount >= this.recruitCount) {
-            throw new IllegalStateException("모집 정원이 가득 찼습니다.");
+            throw new BusinessException(ErrorCode.PROJECT_RECRUITMENT_FULL);
         }
         this.currentCount++;
         if (this.currentCount.equals(this.recruitCount)) {
@@ -95,6 +95,13 @@ public class Project extends BaseEntity {
     public void decreaseCurrentCount() {
         if (this.currentCount > 0) {
             this.currentCount--;
+        }
+    }
+
+    public void synchronizeCurrentCount(int activeMemberCount) {
+        this.currentCount = activeMemberCount;
+        if (this.status == ProjectStatus.RECRUITING && activeMemberCount >= this.recruitCount) {
+            this.status = ProjectStatus.CLOSED;
         }
     }
 

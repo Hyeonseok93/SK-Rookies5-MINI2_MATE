@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getApiErrorMessage } from '../utils/apiUtils';
 import { 
   Container, Box, Typography, TextField, Button, Paper, 
   Link, Divider, Stack, Grid 
@@ -54,17 +55,14 @@ const FindPasswordPage = () => {
     setIsLoading(true);
 
     try {
-      // 2. authApi 사용 (v1.1: reset-password)
+      // Interim: endpoint is privacy-safe and does not reset the password.
       const response = await authApi.resetPassword(email, phoneNumber.replace(/-/g, ''));
       
-      // 3. 응답 성공 시 결과 화면으로 전환
-      // axiosInstance interceptor에서 이미 response.data.data를 반환하므로 response는 문자열(임시비번)입니다.
-      if (response) {
-        setResult(response); 
+      if (response !== undefined && response !== null) {
+        setResult(true);
       }
     } catch (err) {
-      // 4. 에러 발생 시 처리
-      const msg = err.error?.message || err.message || '입력하신 정보가 일치하지 않습니다.';
+      const msg = getApiErrorMessage(err, '요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.');
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -103,7 +101,7 @@ const FindPasswordPage = () => {
             비밀번호 찾기
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary', mb: 6, fontWeight: 500 }}>
-            가입 시 등록한 이메일과 휴대폰 번호를 입력해 주세요.
+            자동 비밀번호 재설정은 현재 이용할 수 없습니다. 관리자에게 문의해 주세요.
           </Typography>
 
           {result === null ? (
@@ -139,28 +137,29 @@ const FindPasswordPage = () => {
                   boxShadow: '0 12px 24px rgba(108,99,255,0.2)', mb: 4 
                 }}
               >
-                {isLoading ? '처리 중...' : '임시 비밀번호 발급받기'}
+                {isLoading ? '처리 중...' : '안내 확인하기'}
               </Button>
             </Box>
           ) : (
-            /* [2. 성공 결과 화면] */
+            /* [2. 결과 화면 — 자동 재설정 불가 안내] */
             <Box sx={{ textAlign: 'center' }}>
               <Box sx={{ 
                 p: 5, bgcolor: '#F5F6FF', borderRadius: 6, border: '1px solid #E0E7FF', mb: 4 
               }}>
-                <Typography sx={{ fontSize: 40, mb: 1 }}>🔑</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 800, color: '#6366F1', mb: 2 }}>
-                  임시 비밀번호가 발급되었습니다
+                  자동 비밀번호 재설정을 이용할 수 없습니다
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#111827', letterSpacing: 2, mb: 3 }}>
-                  {result}
+                <Typography variant="body1" sx={{ fontWeight: 600, color: '#374151', mb: 3, lineHeight: 1.6 }}>
+                  현재 이메일·SMS 등 검증된 전달 수단이 연결되어 있지 않아
+                  <br />
+                  셀프서비스로 비밀번호를 재설정할 수 없습니다.
                 </Typography>
                 <Box sx={{ bgcolor: '#FEF3C7', p: 2, borderRadius: 3 }}>
                   <Typography variant="caption" sx={{ color: '#92400E', fontWeight: 800, display: 'block', mb: 0.5 }}>
-                    ⚠️ 보안 주의사항
+                    안내
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#92400E', fontWeight: 500, lineHeight: 1.5 }}>
-                    로그인 후 마이페이지에서 반드시 비밀번호를 변경해 주세요.
+                    계정 복구가 필요하면 관리자에게 문의해 주세요. 비밀번호는 변경되지 않습니다.
                   </Typography>
                 </Box>
               </Box>

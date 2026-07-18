@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     // 작성자(Owner)의 ID로 프로젝트 목록을 찾는 메서드 정의
@@ -59,11 +60,21 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     @Query(value = "SELECT * FROM projects WHERE project_id = :id", nativeQuery = true)
     Optional<Project> findByIdIncludingDeleted(@Param("id") Long id);
 
+    @Query(value = "SELECT * FROM projects WHERE owner_id = :ownerId AND deleted_at = :deletedAt", nativeQuery = true)
+    List<Project> findAllByOwnerIdAndDeletedAtIncludingDeleted(@Param("ownerId") Long ownerId,
+                                                               @Param("deletedAt") LocalDateTime deletedAt);
+
     @Query(value = "SELECT count(*) FROM projects", nativeQuery = true)
     long countIncludingDeleted();
 
-    @Query(value = "SELECT * FROM projects", nativeQuery = true)
-    List<Project> findAllIncludingDeletedList();
+    @Query(value = "SELECT p.* FROM projects p JOIN users u ON u.user_id = p.owner_id " +
+            "WHERE LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(u.nickname) LIKE LOWER(CONCAT('%', :keyword, '%')) ORDER BY p.created_at DESC",
+            countQuery = "SELECT count(*) FROM projects p JOIN users u ON u.user_id = p.owner_id " +
+                    "WHERE LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                    "OR LOWER(u.nickname) LIKE LOWER(CONCAT('%', :keyword, '%'))",
+            nativeQuery = true)
+    Page<Project> searchIncludingDeleted(@Param("keyword") String keyword, Pageable pageable);
 
     // ✅ 추가: 삭제되지 않은 프로젝트 전체 페이징 조회 (최신순)
     @Query("SELECT p FROM Project p WHERE p.deletedAt IS NULL")

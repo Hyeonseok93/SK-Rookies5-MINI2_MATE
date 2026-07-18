@@ -16,8 +16,6 @@ import PostWritePage from '@/pages/PostWritePage.jsx';
 import PostEditPage from '@/pages/PostEditPage.jsx';
 import BoardPage from '@/pages/BoardPage.jsx';
 import MyPage from '@/pages/MyPage.jsx';
-import MyPostsPage from '@/pages/MyPostsPage.jsx';
-import MyAppliesPage from '@/pages/MyAppliesPage.jsx';
 import ErrorPage from '@/pages/ErrorPage.jsx';
 import FindEmailPage from '@/pages/FindEmailPage.jsx';
 import FindPasswordPage from '@/pages/FindPasswordPage.jsx';
@@ -62,13 +60,6 @@ function App() {
             <Route path="/mypage" element={
               <ProtectedRoute><MyPage /></ProtectedRoute>
             } />
-            <Route path="/mypage/posts" element={
-              <ProtectedRoute><MyPostsPage /></ProtectedRoute>
-            } />
-            <Route path="/mypage/applies" element={
-              <ProtectedRoute><MyAppliesPage /></ProtectedRoute>
-            } />
-
             {/* 5. 에러 페이지 (항상 맨 아래에 위치) */}
             <Route path="*" element={<ErrorPage />} />
           </Route>
