@@ -5,7 +5,6 @@ import com.rookies5.Backend_MATE.entity.Project;
 import com.rookies5.Backend_MATE.entity.ProjectMember;
 import com.rookies5.Backend_MATE.entity.User;
 import com.rookies5.Backend_MATE.entity.enums.ApplicationStatus;
-import com.rookies5.Backend_MATE.entity.enums.MemberRole;
 import com.rookies5.Backend_MATE.exception.BusinessException;
 import com.rookies5.Backend_MATE.exception.EntityNotFoundException;
 import com.rookies5.Backend_MATE.exception.ErrorCode;

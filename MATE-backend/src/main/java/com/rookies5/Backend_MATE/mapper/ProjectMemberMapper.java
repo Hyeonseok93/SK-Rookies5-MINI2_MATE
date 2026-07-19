@@ -5,7 +5,6 @@ import com.rookies5.Backend_MATE.entity.Project;
 import com.rookies5.Backend_MATE.entity.ProjectMember;
 import com.rookies5.Backend_MATE.entity.User;
 import com.rookies5.Backend_MATE.entity.enums.MemberRole;
-import com.rookies5.Backend_MATE.entity.enums.Position;
 
 public class ProjectMemberMapper {
 

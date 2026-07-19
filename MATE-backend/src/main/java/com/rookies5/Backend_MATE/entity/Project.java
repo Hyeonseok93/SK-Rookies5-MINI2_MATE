@@ -1,9 +1,7 @@
 package com.rookies5.Backend_MATE.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.rookies5.Backend_MATE.dto.request.ProjectRequestDto;
-import com.rookies5.Backend_MATE.entity.BaseEntity;
 import com.rookies5.Backend_MATE.entity.enums.Category;
 import com.rookies5.Backend_MATE.entity.enums.OnOffline;
 import com.rookies5.Backend_MATE.entity.enums.ProjectStatus;
@@ -14,7 +12,6 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Where(clause = "deleted_at IS NULL")

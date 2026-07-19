@@ -1,7 +1,6 @@
 package com.rookies5.Backend_MATE.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.rookies5.Backend_MATE.entity.BaseEntity;
 import com.rookies5.Backend_MATE.entity.enums.Position;
 import com.rookies5.Backend_MATE.entity.enums.UserRole;
 import jakarta.persistence.*;
@@ -9,7 +8,6 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity

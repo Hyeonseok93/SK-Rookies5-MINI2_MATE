@@ -13,7 +13,6 @@ import com.rookies5.Backend_MATE.repository.BoardPostRepository;
 import com.rookies5.Backend_MATE.repository.CommentRepository;
 import com.rookies5.Backend_MATE.repository.ProjectMemberRepository;
 import com.rookies5.Backend_MATE.repository.UserRepository;
-import com.rookies5.Backend_MATE.security.SecurityUtils;
 import com.rookies5.Backend_MATE.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

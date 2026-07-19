@@ -1,7 +1,6 @@
 package com.rookies5.Backend_MATE.exception.advice;
 
 import com.rookies5.Backend_MATE.exception.BusinessException;
-import com.rookies5.Backend_MATE.exception.EntityNotFoundException;
 import com.rookies5.Backend_MATE.exception.ErrorCode;
 import com.rookies5.Backend_MATE.exception.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;

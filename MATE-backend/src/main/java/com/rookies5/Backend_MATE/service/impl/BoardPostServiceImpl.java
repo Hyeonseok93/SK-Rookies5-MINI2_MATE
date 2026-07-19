@@ -5,7 +5,6 @@ import com.rookies5.Backend_MATE.dto.response.BoardPostResponseDto;
 import com.rookies5.Backend_MATE.entity.BoardPost;
 import com.rookies5.Backend_MATE.entity.Project;
 import com.rookies5.Backend_MATE.entity.User;
-import com.rookies5.Backend_MATE.entity.enums.UserRole;
 import com.rookies5.Backend_MATE.exception.*;
 
 import com.rookies5.Backend_MATE.mapper.BoardPostMapper;
@@ -17,8 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
