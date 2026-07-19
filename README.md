@@ -1,4 +1,4 @@
-# 🤝 MATE: 스터디 & 프로젝트 매칭 플랫폼
+# <img src="assets/readme/logo.png" width="40" height="40" align="center" /> MATE: 스터디 & 프로젝트 매칭 플랫폼
 
 ## 💻 Developers
 
