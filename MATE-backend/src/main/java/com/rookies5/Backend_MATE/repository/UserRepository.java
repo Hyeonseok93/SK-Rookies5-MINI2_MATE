@@ -60,9 +60,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             nativeQuery = true)
     Page<User> searchIncludingDeleted(@Param("keyword") String keyword, Pageable pageable);
 
-    // 기본 findByEmail은 @Where 때문에 삭제된 사용자를 못 찾음
-    // 💡 Native Query를 써서 삭제된 데이터까지 강제로 뒤집니다.
-    // 💡 Native Query를 사용하면 @Where 필터를 무시하고 전체 테이블에서 찾습니다.
+    // 기본 findByEmail은 @SQLRestriction 때문에 삭제된 사용자를 못 찾음
+    // Native Query를 사용하면 soft-delete 필터를 무시하고 전체 테이블에서 찾습니다.
     @Query(value = "SELECT COUNT(*) FROM users WHERE email = :email", nativeQuery = true)
     int countByEmailIncludingDeleted(@Param("email") String email);
 

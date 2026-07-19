@@ -6,7 +6,7 @@ import com.rookies5.Backend_MATE.entity.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.*;
 
@@ -16,7 +16,7 @@ import java.util.*;
         @Index(name = "idx_nickname", columnList = "nickname"),
         @Index(name = "idx_phone_number", columnList = "phone_number")
 })
-@Where(clause = "deleted_at IS NULL")
+@SQLRestriction("deleted_at IS NULL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder

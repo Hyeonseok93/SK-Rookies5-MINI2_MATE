@@ -18,8 +18,12 @@ public class CloudinaryService {
     public String uploadImage(MultipartFile file) {
         try {
             // 파일을 Cloudinary에 업로드하고 결과 수신
-            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-            
+            @SuppressWarnings("unchecked")
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.emptyMap()
+            );
+
             // 결과 맵에서 이미지의 보안 URL(https)을 가져와 문자열로 반환
             return uploadResult.get("secure_url").toString();
         } catch (IOException e) {
