@@ -1,8 +1,6 @@
 export const getApiErrorMessage = (error, fallback) =>
   error?.error?.message ||
   error?.response?.data?.error?.message ||
-  error?.response?.data?.message ||
-  error?.message ||
   fallback;
 
 export const getProjectId = (value) =>

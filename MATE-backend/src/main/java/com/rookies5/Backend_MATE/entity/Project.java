@@ -44,6 +44,7 @@ public class Project extends BaseEntity {
 
     @Column(columnDefinition = "TEXT", nullable = false)
     @NotBlank(message = "내용은 필수입니다")
+    @Size(max = 10000, message = "내용은 10,000자 이내여야 합니다")
     private String content;
 
     @Column(name = "recruit_count", nullable = false)

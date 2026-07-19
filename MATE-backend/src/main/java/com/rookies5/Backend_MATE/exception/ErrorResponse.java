@@ -27,6 +27,5 @@ public class ErrorResponse {
     public static class FieldError {
         private String field;
         private String message;
-        private Object rejectedValue;
     }
 }

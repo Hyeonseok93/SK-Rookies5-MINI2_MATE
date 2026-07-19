@@ -20,13 +20,13 @@ describe('getApiErrorMessage', () => {
     expect(getApiErrorMessage(error, 'fallback')).toBe('from-response');
   });
 
-  it('falls back to response.data.message', () => {
+  it('does not expose an unstructured response message', () => {
     const error = { response: { data: { message: 'plain-message' } } };
-    expect(getApiErrorMessage(error, 'fallback')).toBe('plain-message');
+    expect(getApiErrorMessage(error, 'fallback')).toBe('fallback');
   });
 
-  it('falls back to the raw error message', () => {
-    expect(getApiErrorMessage({ message: 'network error' }, 'fallback')).toBe('network error');
+  it('does not expose a raw client error message', () => {
+    expect(getApiErrorMessage({ message: 'network error' }, 'fallback')).toBe('fallback');
   });
 
   it('returns the fallback when nothing else is present', () => {

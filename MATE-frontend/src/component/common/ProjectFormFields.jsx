@@ -25,7 +25,7 @@ export default function ProjectFormFields({ formData, setFormData, dateParts, on
           </Stack>
         </Box>
         <FormLabel sx={labelStyle}>제목 *</FormLabel>
-        <TextField fullWidth value={formData.title} onChange={onChange('title')} placeholder="함께하고 싶은 열정이 느껴지는 제목을 지어주세요! (5글자 이상)" sx={inputStyle} />
+        <TextField fullWidth value={formData.title} onChange={onChange('title')} inputProps={{ maxLength: 50 }} placeholder="함께하고 싶은 열정이 느껴지는 제목을 지어주세요! (5글자 이상)" sx={inputStyle} />
       </Paper>
       <Paper elevation={0} sx={paperStyle}>
         <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 4 }}><GroupAddIcon color="primary" /><Typography variant="h6" sx={{ fontWeight: 900 }}>모집 조건</Typography></Stack>
@@ -44,7 +44,7 @@ export default function ProjectFormFields({ formData, setFormData, dateParts, on
       </Paper>
       <Paper elevation={0} sx={paperStyle}>
         <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 4 }}><CodeIcon color="primary" /><Typography variant="h6" sx={{ fontWeight: 900 }}>상세 소개</Typography></Stack>
-        <TextField multiline rows={12} fullWidth value={formData.content} onChange={onChange('content')} placeholder="프로젝트의 목적, 방식, 커리큘럼 등을 자세히 적어주세요. 🚀" sx={inputStyle} />
+        <TextField multiline rows={12} fullWidth value={formData.content} onChange={onChange('content')} inputProps={{ maxLength: 10000 }} placeholder="프로젝트의 목적, 방식, 커리큘럼 등을 자세히 적어주세요. 🚀" sx={inputStyle} />
       </Paper>
     </>
   );

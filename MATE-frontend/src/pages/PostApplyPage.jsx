@@ -209,6 +209,7 @@ const PostApplyPage = () => {
                 placeholder="함께하고 싶은 이유와 본인의 강점을 자유롭게 적어주세요. (경험, 열정, 협업 스타일 등)"
                 value={formData.content}
                 onChange={handleChange('content')}
+                inputProps={{ maxLength: 500 }}
                 helperText={`${formData.content.length} / 500자 (최소 10자)`}
                 FormHelperTextProps={{ sx: { textAlign: 'right', fontWeight: 700, fontSize: '0.85rem', color: formData.content.length < 10 ? '#ef5350' : '#9CA3AF', mt: 1 } }}
                 sx={inputStyle}
@@ -223,6 +224,7 @@ const PostApplyPage = () => {
                 placeholder="깃허브, 블로그, 포트폴리오 사이트 주소 (https://...)"
                 value={formData.link}
                 onChange={handleChange('link')}
+                inputProps={{ maxLength: 255 }}
                 sx={inputStyle}
               />
             </Box>
@@ -235,6 +237,7 @@ const PostApplyPage = () => {
                 placeholder="카카오톡 아이디 또는 오픈채팅방 링크"
                 value={formData.contact}
                 onChange={handleChange('contact')}
+                inputProps={{ maxLength: 255 }}
                 sx={inputStyle}
               />
             </Box>

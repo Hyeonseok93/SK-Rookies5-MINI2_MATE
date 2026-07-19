@@ -39,7 +39,12 @@ public class Application extends BaseEntity{
     @Size(min = 10, max = 500, message = "지원 동기는 10~500자 사이여야 합니다")
     private String message;
 
+    @Column(length = 255)
+    @Size(max = 255)
     private String link;    // 포트폴리오/깃허브 링크
+
+    @Column(length = 255)
+    @Size(max = 255)
     private String contact; // 카톡/오픈채팅 등 연락처
 
     // ✅ 추가: 해당 지원서에서 선택한 포지션 저장

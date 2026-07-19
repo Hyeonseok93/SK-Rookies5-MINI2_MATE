@@ -55,6 +55,9 @@ public enum ErrorCode {
     INVALID_PHONE_FORMAT("VALID_003", "전화번호 형식이 올바르지 않습니다 (숫자 11자)", HttpStatus.BAD_REQUEST),
     DATA_INTEGRITY_VIOLATION("VALID_004", "이미 존재하거나 참조 중인 데이터입니다", HttpStatus.CONFLICT),
 
+    // HTTP 요청 관련
+    ENDPOINT_NOT_FOUND("HTTP_001", "요청한 API를 찾을 수 없습니다", HttpStatus.NOT_FOUND),
+    METHOD_NOT_ALLOWED("HTTP_002", "지원하지 않는 HTTP 메서드입니다", HttpStatus.METHOD_NOT_ALLOWED),
 
     // 서버 오류 (500)
     INTERNAL_SERVER_ERROR("SERVER_001", "서버 내부 오류가 발생했습니다", HttpStatus.INTERNAL_SERVER_ERROR),

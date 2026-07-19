@@ -3,13 +3,19 @@ package com.rookies5.Backend_MATE.exception.advice;
 import com.rookies5.Backend_MATE.exception.BusinessException;
 import com.rookies5.Backend_MATE.exception.ErrorCode;
 import com.rookies5.Backend_MATE.exception.ErrorResponse;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,7 +57,6 @@ public class DefaultExceptionAdvice {
                 .map(fieldError -> ErrorResponse.FieldError.builder()
                         .field(fieldError.getField())
                         .message(fieldError.getDefaultMessage())
-                        .rejectedValue(maskSensitiveRejectedValue(fieldError.getField(), fieldError.getRejectedValue()))
                         .build())
                 .collect(Collectors.toList());
 
@@ -69,6 +74,29 @@ public class DefaultExceptionAdvice {
 
         // ResponseEntity.badRequest() 대신 status() 사용
         return ResponseEntity.status(errorCode.getHttpStatus()).body(errorResponse);
+    }
+
+    @ExceptionHandler({
+            HttpMessageNotReadableException.class,
+            MissingServletRequestParameterException.class,
+            MethodArgumentTypeMismatchException.class,
+            ConstraintViolationException.class
+    })
+    public ResponseEntity<ErrorResponse> handleMalformedRequest(Exception e) {
+        log.warn("Malformed request: {}", e.getClass().getSimpleName());
+        return buildErrorResponse(ErrorCode.VALIDATION_ERROR);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException e) {
+        log.warn("API endpoint not found: {}", e.getResourcePath());
+        return buildErrorResponse(ErrorCode.ENDPOINT_NOT_FOUND);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+        log.warn("HTTP method not supported: {}", e.getMethod());
+        return buildErrorResponse(ErrorCode.METHOD_NOT_ALLOWED);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
@@ -103,10 +131,14 @@ public class DefaultExceptionAdvice {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
-    private Object maskSensitiveRejectedValue(String field, Object rejectedValue) {
-        if (field != null && field.toLowerCase().contains("password")) {
-            return "******";
-        }
-        return rejectedValue;
+    private ResponseEntity<ErrorResponse> buildErrorResponse(ErrorCode errorCode) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .error(ErrorResponse.ErrorDetail.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(errorResponse);
     }
 }
