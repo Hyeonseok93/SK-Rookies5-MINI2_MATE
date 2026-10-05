@@ -201,7 +201,7 @@ React에서 프로젝트·스터디, 기술 스택, 키워드를 기준으로 �
 
 ---
 
-## 🖥️ Preview · [자세히 보기](https://bulldog93.tistory.com/46)
+## 🖥️ Preview · [자세히 보기](https://hyeonseok93.github.io/posts/rookies-showcase-mini2/)
 
 <div align="center">
   <img src=".github/readme/preview-home.png" alt="MATE 홈 화면" width="900" />
@@ -305,7 +305,7 @@ Spring Boot REST API가 **회원(User) · 모집글(Project) · 지원서(Applic
 
 주요 엔드포인트는 `/api/auth`(가입·중복확인·로그인·토큰 재발급), `/api/users/me`(프로필·마이페이지), `/api/projects`(모집글 CRUD·마감·재모집), `/api/applications`(지원·수락/거절), `/api/posts/{projectId}/board`(게시판·댓글), `/admin`(Thymeleaf 관리자 화면)으로 나뉩니다.
 
-> 상세 ERD 한 장과 주요 API 표(설계 의도 포함)는 [기술 블로그](https://bulldog93.tistory.com/46)에서 다룹니다.
+> 상세 ERD 한 장과 주요 API 표(설계 의도 포함)는 [기술 블로그](https://hyeonseok93.github.io/posts/rookies-showcase-mini2/)에서 다룹니다.
 
 ---
 
